@@ -1,15 +1,57 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { Calendar, AlertTriangle } from 'lucide-react';
-import { deadlineData, upcomingDeadlines } from '../data/mockData';
+import { deadlineData } from '../data/mockData';
+
+type DeadlinePriority = 'low' | 'medium' | 'high';
+
+interface Deadline {
+  id?: string | number;
+  title: string;
+  subject: string;
+  dueDate: string;
+  priority: DeadlinePriority;
+}
 
 export default function DeadlineHeatmap() {
   const [title, setTitle] = useState('');
   const [subject, setSubject] = useState('');
   const [dueDate, setDueDate] = useState('');
-  const [priority, setPriority] = useState<'low' | 'medium' | 'high'>('medium');
+  const [priority, setPriority] = useState<DeadlinePriority>('medium');
   const [isSaving, setIsSaving] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
+  const [deadlines, setDeadlines] = useState<Deadline[]>([]);
+  const [isLoadingDeadlines, setIsLoadingDeadlines] = useState(false);
+  const [deadlinesError, setDeadlinesError] = useState<string | null>(null);
+
+  const sortDeadlines = (items: Deadline[]) =>
+    [...items].sort(
+      (a, b) =>
+        new Date(a.dueDate).getTime() - new Date(b.dueDate).getTime()
+    );
+
+  const fetchDeadlines = async () => {
+    setIsLoadingDeadlines(true);
+    setDeadlinesError(null);
+    try {
+      const response = await fetch('http://localhost:3000/api/deadlines');
+      if (!response.ok) {
+        const err = (await response.json().catch(() => null)) as { error?: string } | null;
+        throw new Error(err?.error ?? 'Failed to load deadlines');
+      }
+      const data = (await response.json()) as Deadline[];
+      setDeadlines(sortDeadlines(data));
+    } catch (error) {
+      setDeadlinesError(error instanceof Error ? error.message : 'Failed to load deadlines');
+    } finally {
+      setIsLoadingDeadlines(false);
+    }
+  };
+
+  useEffect(() => {
+    void fetchDeadlines();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const handleAddDeadline = async () => {
     if (!title.trim() || !subject.trim() || !dueDate) {
@@ -32,6 +74,14 @@ export default function DeadlineHeatmap() {
       if (!response.ok) {
         const err = (await response.json().catch(() => null)) as { error?: string } | null;
         throw new Error(err?.error ?? 'Failed to save deadline');
+      }
+      // Try to use the created deadline if the API returns it,
+      // otherwise fall back to reloading from the server.
+      const created = (await response.json().catch(() => null)) as Deadline | null;
+      if (created && created.title && created.dueDate) {
+        setDeadlines((prev) => sortDeadlines([...prev, created]));
+      } else {
+        void fetchDeadlines();
       }
       setTitle('');
       setSubject('');
@@ -178,28 +228,41 @@ export default function DeadlineHeatmap() {
           <AlertTriangle size={16} className="text-orange-400" />
           Upcoming Deadlines
         </h3>
+        {deadlinesError && (
+          <p className="text-xs text-red-400 mb-2">
+            {deadlinesError}
+          </p>
+        )}
         <div className="space-y-2">
-          {upcomingDeadlines.map((deadline, index) => (
-            <motion.div
-              key={index}
-              initial={{ opacity: 0, x: -10 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ delay: 0.1 * index }}
-              whileHover={{ scale: 1.02, x: 4 }}
-              className={`flex items-center justify-between p-3 rounded-lg border ${getPriorityColor(deadline.priority)} transition-all cursor-pointer`}
-            >
-              <div className="flex items-center gap-3">
-                <div className={`w-2 h-2 rounded-full ${getPriorityDot(deadline.priority)}`} />
-                <div>
-                  <p className="text-sm font-medium text-white">{deadline.title}</p>
-                  <p className="text-xs text-gray-400">{deadline.subject}</p>
+          {isLoadingDeadlines ? (
+            <p className="text-xs text-gray-400">Loading deadlines...</p>
+          ) : deadlines.length === 0 ? (
+            <p className="text-xs text-gray-400">
+              No upcoming deadlines yet. Add your first assignment above.
+            </p>
+          ) : (
+            deadlines.map((deadline, index) => (
+              <motion.div
+                key={deadline.id ?? `${deadline.title}-${deadline.dueDate}-${index}`}
+                initial={{ opacity: 0, x: -10 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ delay: 0.05 * index }}
+                whileHover={{ scale: 1.02, x: 4 }}
+                className={`flex items-center justify-between p-3 rounded-lg border ${getPriorityColor(deadline.priority)} transition-all cursor-pointer`}
+              >
+                <div className="flex items-center gap-3">
+                  <div className={`w-2 h-2 rounded-full ${getPriorityDot(deadline.priority)}`} />
+                  <div>
+                    <p className="text-sm font-medium text-white">{deadline.title}</p>
+                    <p className="text-xs text-gray-400">{deadline.subject}</p>
+                  </div>
                 </div>
-              </div>
-              <div className="text-xs text-gray-400">
-                {new Date(deadline.dueDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
-              </div>
-            </motion.div>
-          ))}
+                <div className="text-xs text-gray-400">
+                  {new Date(deadline.dueDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
+                </div>
+              </motion.div>
+            ))
+          )}
         </div>
       </div>
     </motion.div>

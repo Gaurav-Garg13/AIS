@@ -1,0 +1,14 @@
+#lights,
+.hyperspeed-container {
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  position: absolute;
+  inset: 0;
+}
+
+.hyperspeed-container canvas {
+  width: 100%;
+  height: 100%;
+}
+

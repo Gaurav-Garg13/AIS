@@ -46,10 +46,19 @@ type AttendanceEntry = {
   markedAt: string;
 };
 
+const getLocalDateKey = () => {
+  const now = new Date();
+  const year = now.getFullYear();
+  const month = String(now.getMonth() + 1).padStart(2, '0');
+  const day = String(now.getDate()).padStart(2, '0');
+  return `${year}-${month}-${day}`; // strict local YYYY-MM-DD
+};
+
 export default function AttendanceTracker() {
   const [todayStatus, setTodayStatus] = useState<AttendanceEntry | null>(null);
   const [isSaving, setIsSaving] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
+  const [attendanceEntries, setAttendanceEntries] = useState<AttendanceEntry[]>([]);
 
   useEffect(() => {
     const loadToday = async () => {
@@ -57,7 +66,8 @@ export default function AttendanceTracker() {
         const response = await fetch('http://localhost:3000/api/attendance');
         if (!response.ok) return;
         const all = (await response.json()) as AttendanceEntry[];
-        const todayKey = new Date().toISOString().slice(0, 10);
+        setAttendanceEntries(all);
+        const todayKey = getLocalDateKey();
         const found = all.find((e) => e.date === todayKey) ?? null;
         setTodayStatus(found);
       } catch {
@@ -82,6 +92,15 @@ export default function AttendanceTracker() {
       }
       const entry = (await response.json()) as AttendanceEntry;
       setTodayStatus(entry);
+      setAttendanceEntries((prev) => {
+        const existingIndex = prev.findIndex((e) => e.date === entry.date);
+        if (existingIndex === -1) {
+          return [...prev, entry];
+        }
+        const updated = [...prev];
+        updated[existingIndex] = entry;
+        return updated;
+      });
       setMessage('Saved for today ✔');
     } catch (error) {
       setMessage(error instanceof Error ? error.message : 'Failed to mark attendance');
@@ -96,6 +115,12 @@ export default function AttendanceTracker() {
     const maxMissable = Math.floor((attended - 0.75 * total) / 0.75);
     return Math.max(0, maxMissable);
   };
+
+  const totalLectures = attendanceEntries.length;
+  const attendedLectures = attendanceEntries.filter((e) => e.status === 'present' || e.status === 'late').length;
+  const overallPercentage =
+    totalLectures === 0 ? 0 : (attendedLectures / totalLectures) * 100;
+  const overallSafeMiss = calculateSafeMiss(attendedLectures, totalLectures || 1);
 
   return (
     <motion.div
@@ -121,9 +146,7 @@ export default function AttendanceTracker() {
 
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-6">
         {attendanceData.map((subject, index) => {
-          const percentage = (subject.attended / subject.total) * 100;
-          const safeMiss = calculateSafeMiss(subject.attended, subject.total);
-          const isLow = percentage < 80;
+          const isLow = overallPercentage < 80;
 
           return (
             <motion.div
@@ -134,16 +157,18 @@ export default function AttendanceTracker() {
               whileHover={{ scale: 1.05 }}
               className="flex flex-col items-center"
             >
-              <CircularProgress percentage={percentage} color={subject.color} />
+              <CircularProgress percentage={overallPercentage} color={subject.color} />
               <h3 className="mt-4 font-semibold text-white text-sm text-center">{subject.subject}</h3>
               <p className="text-xs text-gray-400 mt-1">
-                {subject.attended}/{subject.total} classes
+                {attendedLectures}/{totalLectures || 0} classes
               </p>
-              <div className={`mt-2 px-2 py-1 rounded-full text-xs flex items-center gap-1 ${
-                isLow ? 'bg-orange-500/20 text-orange-400' : 'bg-blue-500/20 text-blue-400'
-              }`}>
+              <div
+                className={`mt-2 px-2 py-1 rounded-full text-xs flex items-center gap-1 ${
+                  isLow ? 'bg-orange-500/20 text-orange-400' : 'bg-blue-500/20 text-blue-400'
+                }`}
+              >
                 {isLow && <AlertCircle size={12} />}
-                <span>Safe-Miss: {safeMiss}</span>
+                <span>Safe-Miss: {overallSafeMiss}</span>
               </div>
             </motion.div>
           );

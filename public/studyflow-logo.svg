@@ -1,0 +1,17 @@
+<svg width="64" height="64" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="sf-grad" x1="0" y1="0" x2="64" y2="64" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#38BDF8"/>
+      <stop offset="1" stop-color="#A855F7"/>
+    </linearGradient>
+  </defs>
+  <rect x="4" y="4" width="56" height="56" rx="16" fill="#020617"/>
+  <rect x="4" y="4" width="56" height="56" rx="16" stroke="url(#sf-grad)" stroke-width="2"/>
+  <path d="M18 43C21 37 26 34 33 34C40 34 45 31 48 25" stroke="url(#sf-grad)" stroke-width="3" stroke-linecap="round"/>
+  <path d="M18 23C21 19 25 17 31 17C37 17 41 19 44 22" stroke="#F97316" stroke-width="3" stroke-linecap="round"/>
+  <circle cx="24" cy="27" r="2.5" fill="#FACC15"/>
+  <circle cx="34" cy="23" r="2.5" fill="#22C55E"/>
+  <circle cx="42" cy="31" r="2.5" fill="#3B82F6"/>
+  <path d="M20 48H44" stroke="url(#sf-grad)" stroke-width="2" stroke-linecap="round" stroke-dasharray="4 3"/>
+</svg>
+

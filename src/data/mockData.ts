@@ -46,33 +46,6 @@ export const deadlineData = Array.from({ length: 365 }, (_, i) => {
   };
 });
 
-export const upcomingDeadlines = [
-  {
-    title: 'Data Structures Assignment',
-    subject: 'DSA',
-    dueDate: '2026-03-12',
-    priority: 'high',
-  },
-  {
-    title: 'Database Project Submission',
-    subject: 'DBMS',
-    dueDate: '2026-03-15',
-    priority: 'high',
-  },
-  {
-    title: 'Web Dev Quiz',
-    subject: 'Web Dev',
-    dueDate: '2026-03-18',
-    priority: 'medium',
-  },
-  {
-    title: 'Algorithms Mid-term',
-    subject: 'Algorithms',
-    dueDate: '2026-03-22',
-    priority: 'high',
-  },
-];
-
 export const studySuggestions = [
   'Review Data Structures notes from last week',
   'Complete Web Development practice exercises',

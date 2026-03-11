@@ -1,7 +1,12 @@
 [
   {
     "date": "2026-03-10",
-    "status": "absent",
-    "markedAt": "2026-03-10T11:37:55.895Z"
+    "status": "present",
+    "markedAt": "2026-03-10T19:20:24.046Z"
+  },
+  {
+    "date": "2026-03-11",
+    "status": "present",
+    "markedAt": "2026-03-11T06:05:04.352Z"
   }
 ]

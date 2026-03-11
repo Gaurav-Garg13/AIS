@@ -1,0 +1,26 @@
+[
+  {
+    "id": "a1",
+    "title": "Implement Linked List",
+    "course": "CS201 · DSA",
+    "due": "Mar 15",
+    "status": "done",
+    "points": 40
+  },
+  {
+    "id": "a2",
+    "title": "SQL Joins Worksheet",
+    "course": "CS205 · DBMS",
+    "due": "Mar 14",
+    "status": "done",
+    "points": 30
+  },
+  {
+    "id": "a3",
+    "title": "React Components Lab",
+    "course": "CS210 · Web Dev",
+    "due": "Mar 18",
+    "status": "done",
+    "points": 50
+  }
+]

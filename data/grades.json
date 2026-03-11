@@ -1,0 +1,37 @@
+[
+  {
+    "course": "Data Structures & Algorithms",
+    "code": "CS201",
+    "credits": 4,
+    "grade": "A+",
+    "points": 40
+  },
+  {
+    "course": "Database Systems",
+    "code": "CS205",
+    "credits": 3,
+    "grade": "A+",
+    "points": 30
+  },
+  {
+    "course": "Modern Web Development",
+    "code": "CS210",
+    "credits": 3,
+    "grade": "A+",
+    "points": 30
+  },
+  {
+    "course": "Linux Administration",
+    "code": "CS202",
+    "credits": 5,
+    "grade": "A",
+    "points": 40
+  },
+  {
+    "course": "IoT",
+    "code": "CS204",
+    "credits": 3,
+    "grade": "A+",
+    "points": 30
+  }
+]

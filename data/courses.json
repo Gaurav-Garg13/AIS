@@ -1,0 +1,41 @@
+[
+  {
+    "id": "dsa",
+    "code": "CS2",
+    "title": "Data Structures & Algorithms",
+    "instructor": "Dr. Rao",
+    "credits": 5,
+    "progress": 72,
+    "points": 540,
+    "syllabus": [
+      "Arrays & Linked Lists",
+      "Stacks & Queues",
+      "Trees & Graphs",
+      "Greedy & DP"
+    ],
+    "description": "Core problem-solving course with weekly coding drills and rapid revision sprints.",
+    "schedule": "Mon, Wed · 10:00 - 11:30",
+    "intensity": "Core",
+    "accent": "#38bdf8",
+    "updatedAt": "2026-03-10T21:00:59.120Z"
+  },
+  {
+    "id": "web",
+    "code": "CS210",
+    "title": "Modern Web Development",
+    "instructor": "Ms. Kapoor",
+    "credits": 3,
+    "progress": 40,
+    "points": 260,
+    "syllabus": [
+      "HTML & CSS",
+      "React Basics",
+      "Routing & State",
+      "APIs & Auth"
+    ],
+    "description": "Build-focused course mixing frontend systems, integration work, and iteration speed.",
+    "schedule": "Fri · 14:00 - 16:00",
+    "intensity": "Lab",
+    "accent": "#fb7185"
+  }
+]
