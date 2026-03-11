@@ -37,5 +37,83 @@
     "schedule": "Fri · 14:00 - 16:00",
     "intensity": "Lab",
     "accent": "#fb7185"
+  },
+  {
+    "id": "cs101-1773230508766",
+    "code": "CS211",
+    "title": "Backend",
+    "instructor": "Mr. Mustakim Shaikh",
+    "credits": 4,
+    "progress": 25,
+    "points": 10,
+    "syllabus": [
+      "Variables",
+      "Functions",
+      "Arrays"
+    ],
+    "description": "Back end engineering",
+    "schedule": "Mon Wed 9:00-10:00",
+    "intensity": "Core",
+    "accent": "#10b981",
+    "createdAt": "2026-03-11T12:01:48.766Z",
+    "updatedAt": "2026-03-11T13:28:23.041Z"
+  },
+  {
+    "id": "cs101-1773230508766",
+    "code": "CS101",
+    "title": "Introduction to Programming",
+    "instructor": "Dr. Smith",
+    "credits": 3,
+    "progress": 0,
+    "points": 0,
+    "syllabus": [
+      "Variables",
+      "Functions",
+      "Arrays"
+    ],
+    "description": "Basic programming course",
+    "schedule": "Mon Wed 9:00-10:00",
+    "intensity": "Core",
+    "accent": "#10b981",
+    "createdAt": "2026-03-11T12:01:48.766Z",
+    "updatedAt": "2026-03-11T12:01:48.766Z"
+  },
+  {
+    "id": "cs102-1773235323803",
+    "code": "CS102",
+    "title": "Advanced Programming",
+    "instructor": "Dr. Johnson",
+    "credits": 4,
+    "progress": 0,
+    "points": 0,
+    "syllabus": [
+      "Advanced Topics",
+      "Design Patterns",
+      "Architecture"
+    ],
+    "description": "Advanced programming course",
+    "schedule": "Tue Thu 10:00-11:30",
+    "intensity": "Core",
+    "accent": "#ff6b6b",
+    "createdAt": "2026-03-11T13:22:03.802Z",
+    "updatedAt": "2026-03-11T13:22:03.802Z"
+  },
+  {
+    "id": "cs104-1773235383897",
+    "code": "CS104",
+    "title": "Database Systems",
+    "instructor": "Dr. Brown",
+    "credits": 4,
+    "progress": 0,
+    "points": 0,
+    "syllabus": [
+      "General Topics"
+    ],
+    "description": "Database systems course",
+    "schedule": "Tue Thu 9:00-10:30",
+    "intensity": "Core",
+    "accent": "#10b981",
+    "createdAt": "2026-03-11T13:23:03.897Z",
+    "updatedAt": "2026-03-11T13:23:03.897Z"
   }
 ]

@@ -181,7 +181,9 @@ export default function Courses() {
         credits: Number(form.credits),
         progress: Number(form.progress),
         points: Number(form.points),
-        syllabus: form.syllabus.split(',').map(s => s.trim()).filter(Boolean),
+        syllabus: form.syllabus.split(',').map(s => s.trim()).filter(Boolean).length > 0 
+          ? form.syllabus.split(',').map(s => s.trim()).filter(Boolean)
+          : ['General Topics'], // Ensure at least one syllabus item
         prerequisites: form.prerequisites.split(',').map(s => s.trim()).filter(Boolean),
         difficulty: form.difficulty as 'Beginner' | 'Intermediate' | 'Advanced',
         duration: form.duration,

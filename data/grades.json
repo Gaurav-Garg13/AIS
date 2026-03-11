@@ -3,7 +3,7 @@
     "course": "Data Structures & Algorithms",
     "code": "CS201",
     "credits": 4,
-    "grade": "A+",
+    "grade": "B",
     "points": 40
   },
   {
@@ -33,5 +33,11 @@
     "credits": 3,
     "grade": "A+",
     "points": 30
+  },
+  {
+    "course": "Test Course",
+    "code": "TEST101",
+    "credits": 3,
+    "grade": "A"
   }
 ]

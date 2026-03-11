@@ -11,7 +11,7 @@ const readData = (filePath) => {
 };
 
 const writeData = (filePath, data) => {
-  fs.writeFileSync(filePath, JSON.stringify(data, null, 2));
+  fs.writeFileSync(filePath, JSON.stringify(data, null, 2) + '\n', 'utf-8');
 };
 
 export { readData, writeData, __dirname };

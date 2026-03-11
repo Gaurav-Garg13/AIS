@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Test API</title>
+</head>
+<body>
+    <h1>Test Course Creation</h1>
+    <button onclick="testCourse()">Test Create Course</button>
+    <div id="result"></div>
+
+    <script>
+        async function testCourse() {
+            const courseData = {
+                code: "CS101",
+                title: "Introduction to Programming", 
+                instructor: "Dr. Smith",
+                credits: 3,
+                progress: 0,
+                points: 0,
+                syllabus: ["Variables", "Functions", "Arrays"],
+                description: "Basic programming course",
+                schedule: "Mon Wed 9:00-10:00",
+                intensity: "Core",
+                accent: "#10b981"
+            };
+
+            try {
+                const response = await fetch('http://localhost:3000/api/courses', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(courseData)
+                });
+
+                const result = await response.json();
+                document.getElementById('result').innerHTML = '<h3>Success!</h3><pre>' + JSON.stringify(result, null, 2) + '</pre>';
+            } catch (error) {
+                document.getElementById('result').innerHTML = '<h3>Error!</h3><pre>' + error.message + '</pre>';
+            }
+        }
+    </script>
+</body>
+</html>

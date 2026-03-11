@@ -51,7 +51,7 @@ export default function Grades() {
     const loadGrades = async () => {
       try {
         setIsLoading(true);
-        const response = await fetch('/api/grades');
+        const response = await fetch('http://localhost:3000/api/grades');
         if (response.ok) {
           const data = await response.json();
           setRows(data);
@@ -89,7 +89,7 @@ export default function Grades() {
   const saveGrades = async (updatedRows: GradeRow[]) => {
     try {
       setSaveStatus('saving');
-      const response = await fetch('/api/grades', {
+      const response = await fetch('http://localhost:3000/api/grades', {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
