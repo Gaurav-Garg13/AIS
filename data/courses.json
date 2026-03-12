@@ -38,5 +38,22 @@
     "intensity": "Core",
     "accent": "#38bdf8",
     "updatedAt": "2026-03-12T05:12:16.005Z"
+  },
+  {
+    "id": "cs203-1773297579918",
+    "code": "CS203",
+    "title": "ES & IOT",
+    "instructor": "Dr. Deepak Saini",
+    "credits": 3,
+    "progress": 40,
+    "points": 540,
+    "syllabus": [
+      "Microcontrollers"
+    ],
+    "description": "Embedded Systems and Interent of Things",
+    "schedule": "Mon, Tues",
+    "intensity": "Core",
+    "createdAt": "2026-03-12T06:39:39.918Z",
+    "updatedAt": "2026-03-12T06:39:39.918Z"
   }
 ]
