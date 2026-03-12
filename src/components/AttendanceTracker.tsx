@@ -34,7 +34,7 @@ function CircularProgress({ percentage, color, size = 120 }: { percentage: numbe
         />
       </svg>
       <div className="absolute inset-0 flex items-center justify-center">
-        <span className="text-2xl font-bold text-white">{percentage.toFixed(0)}%</span>
+        <span className="text-2xl font-bold text-sage-900 dark:text-white">{percentage.toFixed(0)}%</span>
       </div>
     </div>
   );
@@ -127,17 +127,17 @@ export default function AttendanceTracker() {
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.5 }}
-      className="bg-white/5 backdrop-blur-xl rounded-2xl p-6 border border-white/10 hover:border-white/20 transition-all"
+      className="bg-white dark:bg-white/5 backdrop-blur-xl rounded-2xl p-6 border border-gray-200 dark:border-white/10 hover:border-sage-300 dark:hover:border-white/20 transition-all"
     >
       <div className="flex items-center justify-between mb-4">
-        <h2 className="text-xl font-bold text-white">Attendance Tracker</h2>
+        <h2 className="text-xl font-bold text-sage-900 dark:text-white">Attendance Tracker</h2>
         <div className="flex flex-col items-end gap-1">
           <div className="px-3 py-1 rounded-full bg-green-500/20 text-green-400 text-xs font-medium">
             All On Track
           </div>
-          <div className="flex items-center gap-2 text-[11px] text-gray-400">
+          <div className="flex items-center gap-2 text-[11px] text-sage-500 dark:text-gray-400">
             <span>Today:</span>
-            <span className="font-semibold text-gray-200">
+            <span className="font-semibold text-sage-700 dark:text-gray-200">
               {todayStatus ? todayStatus.status.toUpperCase() : 'Not marked'}
             </span>
           </div>
@@ -158,8 +158,8 @@ export default function AttendanceTracker() {
               className="flex flex-col items-center"
             >
               <CircularProgress percentage={overallPercentage} color={subject.color} />
-              <h3 className="mt-4 font-semibold text-white text-sm text-center">{subject.subject}</h3>
-              <p className="text-xs text-gray-400 mt-1">
+              <h3 className="mt-4 font-semibold text-sage-900 dark:text-white text-sm text-center">{subject.subject}</h3>
+              <p className="text-xs text-sage-600 dark:text-gray-400 mt-1">
                 {attendedLectures}/{totalLectures || 0} classes
               </p>
               <div
@@ -176,8 +176,8 @@ export default function AttendanceTracker() {
       </div>
 
       <div className="mt-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
-        <div className="text-xs text-gray-400">
-          Mark your attendance for today. This is stored in <span className="text-gray-200">data/attendance.json</span>.
+        <div className="text-xs text-sage-500 dark:text-gray-400">
+          Mark your attendance for today. This is stored in <span className="text-sage-700 dark:text-gray-200">data/attendance.json</span>.
         </div>
         <div className="flex items-center gap-2">
           <button
@@ -208,7 +208,7 @@ export default function AttendanceTracker() {
       </div>
 
       {message && (
-        <p className="mt-3 text-xs text-gray-300 bg-white/5 rounded-xl px-3 py-2 text-center">
+        <p className="mt-3 text-xs text-sage-600 dark:text-gray-300 bg-white dark:bg-white/5 rounded-xl px-3 py-2 text-center">
           {message}
         </p>
       )}

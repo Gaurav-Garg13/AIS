@@ -309,13 +309,6 @@ export default function QuickStats() {
 
   return (
     <div className="relative">
-      {/* Background decoration */}
-      <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute top-0 left-1/4 w-96 h-96 bg-purple-500 rounded-full mix-blend-multiply filter blur-3xl opacity-5 animate-pulse"></div>
-        <div className="absolute top-0 right-1/4 w-96 h-96 bg-blue-500 rounded-full mix-blend-multiply filter blur-3xl opacity-5 animate-pulse animation-delay-2000"></div>
-        <div className="absolute bottom-0 left-1/3 w-96 h-96 bg-cyan-500 rounded-full mix-blend-multiply filter blur-3xl opacity-5 animate-pulse animation-delay-4000"></div>
-      </div>
-
       <div className="relative z-10 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         {stats.map((stat, index) => (
           <motion.div
@@ -341,7 +334,12 @@ export default function QuickStats() {
               }}
             ></div>
             
-            <div className={`relative ${stat.bgColor} backdrop-blur-2xl rounded-2xl p-6 border border-white/10 hover:border-white/20 transition-all duration-300 overflow-hidden`}>
+            <div className={`relative ${stat.bgColor} backdrop-blur-2xl rounded-2xl p-6 border border-gray-200 dark:border-white/10 hover:border-sage-300 dark:hover:border-white/20 transition-all duration-300 overflow-hidden bg-white dark:border-white/10 dark:hover:border-white/20 dark:bg-transparent`}>
+              {index >= 2 && (
+                <div
+                  className={`absolute inset-0 rounded-2xl ${stat.bgColor} dark:hidden pointer-events-none`}
+                />
+              )}
               {/* Icon container */}
               <div className="flex items-start justify-between mb-4">
                 <div
@@ -363,7 +361,7 @@ export default function QuickStats() {
 
               <div className="space-y-2">
                 <div>
-                  <div className="text-3xl font-bold text-white mb-1">
+                  <div className="text-3xl font-bold text-sage-900 dark:text-white mb-1">
                     {isLoading ? (
                       <div className="inline-block">
                         Loading...
@@ -374,7 +372,7 @@ export default function QuickStats() {
                       </span>
                     )}
                   </div>
-                  <div className="text-sm text-gray-300">{stat.label}</div>
+                  <div className="text-sm text-sage-600 dark:text-gray-300">{stat.label}</div>
                 </div>
                 
                 <div className="flex items-center gap-2">

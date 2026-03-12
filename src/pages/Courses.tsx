@@ -282,38 +282,32 @@ export default function Courses() {
 
   return (
     <div className="min-h-screen relative overflow-hidden">
-      {/* Background Effects */}
-      <div className="absolute inset-0">
-        <div className="absolute top-0 left-1/4 w-96 h-96 bg-purple-500 rounded-full mix-blend-multiply filter blur-3xl opacity-10 animate-pulse"></div>
-        <div className="absolute top-0 right-1/4 w-96 h-96 bg-cyan-500 rounded-full mix-blend-multiply filter blur-3xl opacity-10 animate-pulse animation-delay-2000"></div>
-        <div className="absolute bottom-0 left-1/3 w-96 h-96 bg-pink-500 rounded-full mix-blend-multiply filter blur-3xl opacity-10 animate-pulse animation-delay-4000"></div>
-      </div>
-
+      {/* Background Effects - removed for clean look */}
       <div className="relative z-10 space-y-6 p-6">
         {/* Header */}
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-4xl font-bold text-white mb-2 bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent">
+            <h1 className="text-4xl font-bold text-sage-900 dark:text-white mb-2 bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent">
               Courses
             </h1>
-            <p className="text-gray-300">Manage your courses and track your learning journey</p>
+            <p className="text-sage-600 dark:text-gray-300">Manage your courses and track your learning journey</p>
           </div>
           <div className="flex items-center gap-3">
             <button
               onClick={() => setShowStats(!showStats)}
-              className="p-2 bg-white/10 backdrop-blur-sm rounded-lg border border-white/20 hover:bg-white/20 transition-colors"
+              className="p-2 bg-white dark:bg-white/10 backdrop-blur-sm rounded-lg border border-sage-300 dark:border-white/20 hover:bg-white/20 transition-colors"
             >
-              <BarChart3 className="w-4 h-4 text-white" />
+              <BarChart3 className="w-4 h-4 text-sage-900 dark:text-white" />
             </button>
             <button
               onClick={() => setViewMode(viewMode === 'grid' ? 'list' : 'grid')}
-              className="p-2 bg-white/10 backdrop-blur-sm rounded-lg border border-white/20 hover:bg-white/20 transition-colors"
+              className="p-2 bg-white dark:bg-white/10 backdrop-blur-sm rounded-lg border border-sage-300 dark:border-white/20 hover:bg-white/20 transition-colors"
             >
-              {viewMode === 'grid' ? <Eye className="w-4 h-4 text-white" /> : <EyeOff className="w-4 h-4 text-white" />}
+              {viewMode === 'grid' ? <Eye className="w-4 h-4 text-sage-900 dark:text-white" /> : <EyeOff className="w-4 h-4 text-sage-900 dark:text-white" />}
             </button>
             <button
               onClick={() => setShowAddForm(true)}
-              className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-lg hover:from-blue-700 hover:to-purple-700 transition-all duration-200 shadow-lg hover:shadow-xl"
+              className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-blue-600 to-purple-600 text-sage-900 dark:text-white rounded-lg hover:from-blue-700 hover:to-purple-700 transition-all duration-200 shadow-lg hover:shadow-xl"
             >
               <Plus className="w-4 h-4" />
               Add Course
@@ -333,70 +327,70 @@ export default function Courses() {
               <motion.div
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
-                className="bg-white/10 backdrop-blur-sm rounded-lg p-4 border border-white/20 hover:bg-white/15 transition-all duration-200"
+                className="bg-white dark:bg-white/10 backdrop-blur-sm rounded-lg p-4 border border-sage-300 dark:border-white/20 hover:bg-white/15 transition-all duration-200"
               >
                 <div className="flex items-center justify-between mb-2">
                   <BookOpen className="w-5 h-5 text-blue-400" />
                   <span className="text-xs text-green-400">+2 this week</span>
                 </div>
-                <div className="text-2xl font-bold text-white">{stats.total}</div>
-                <div className="text-xs text-gray-300">Total Courses</div>
+                <div className="text-2xl font-bold text-sage-900 dark:text-white">{stats.total}</div>
+                <div className="text-xs text-sage-600 dark:text-gray-300">Total Courses</div>
               </motion.div>
 
               <motion.div
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.1 }}
-                className="bg-white/10 backdrop-blur-sm rounded-lg p-4 border border-white/20 hover:bg-white/15 transition-all duration-200"
+                className="bg-white dark:bg-white/10 backdrop-blur-sm rounded-lg p-4 border border-sage-300 dark:border-white/20 hover:bg-white/15 transition-all duration-200"
               >
                 <div className="flex items-center justify-between mb-2">
                   <Target className="w-5 h-5 text-green-400" />
                   <span className="text-xs text-blue-400">On track</span>
                 </div>
-                <div className="text-2xl font-bold text-white">{Math.round(stats.avgProgress)}%</div>
-                <div className="text-xs text-gray-300">Avg Progress</div>
+                <div className="text-2xl font-bold text-sage-900 dark:text-white">{Math.round(stats.avgProgress)}%</div>
+                <div className="text-xs text-sage-600 dark:text-gray-300">Avg Progress</div>
               </motion.div>
 
               <motion.div
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.2 }}
-                className="bg-white/10 backdrop-blur-sm rounded-lg p-4 border border-white/20 hover:bg-white/15 transition-all duration-200"
+                className="bg-white dark:bg-white/10 backdrop-blur-sm rounded-lg p-4 border border-sage-300 dark:border-white/20 hover:bg-white/15 transition-all duration-200"
               >
                 <div className="flex items-center justify-between mb-2">
                   <Award className="w-5 h-5 text-purple-400" />
                   <span className="text-xs text-yellow-400">+1 pending</span>
                 </div>
-                <div className="text-2xl font-bold text-white">{stats.totalCredits}</div>
-                <div className="text-xs text-gray-300">Total Credits</div>
+                <div className="text-2xl font-bold text-sage-900 dark:text-white">{stats.totalCredits}</div>
+                <div className="text-xs text-sage-600 dark:text-gray-300">Total Credits</div>
               </motion.div>
 
               <motion.div
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.3 }}
-                className="bg-white/10 backdrop-blur-sm rounded-lg p-4 border border-white/20 hover:bg-white/15 transition-all duration-200"
+                className="bg-white dark:bg-white/10 backdrop-blur-sm rounded-lg p-4 border border-sage-300 dark:border-white/20 hover:bg-white/15 transition-all duration-200"
               >
                 <div className="flex items-center justify-between mb-2">
                   <Star className="w-5 h-5 text-yellow-400" />
                   <span className="text-xs text-green-400">Great!</span>
                 </div>
-                <div className="text-2xl font-bold text-white">{stats.avgRating.toFixed(1)}</div>
-                <div className="text-xs text-gray-300">Avg Rating</div>
+                <div className="text-2xl font-bold text-sage-900 dark:text-white">{stats.avgRating.toFixed(1)}</div>
+                <div className="text-xs text-sage-600 dark:text-gray-300">Avg Rating</div>
               </motion.div>
 
               <motion.div
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.4 }}
-                className="bg-white/10 backdrop-blur-sm rounded-lg p-4 border border-white/20 hover:bg-white/15 transition-all duration-200"
+                className="bg-white dark:bg-white/10 backdrop-blur-sm rounded-lg p-4 border border-sage-300 dark:border-white/20 hover:bg-white/15 transition-all duration-200"
               >
                 <div className="flex items-center justify-between mb-2">
                   <CheckCircle2 className="w-5 h-5 text-emerald-400" />
                   <span className="text-xs text-purple-400">Awesome!</span>
                 </div>
-                <div className="text-2xl font-bold text-white">{stats.completed}</div>
-                <div className="text-xs text-gray-300">Completed</div>
+                <div className="text-2xl font-bold text-sage-900 dark:text-white">{stats.completed}</div>
+                <div className="text-xs text-sage-600 dark:text-gray-300">Completed</div>
               </motion.div>
             </motion.div>
           )}
@@ -405,13 +399,13 @@ export default function Courses() {
         {/* Search and Filters */}
         <div className="flex flex-col lg:flex-row gap-4">
           <div className="relative flex-1">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-sage-500 dark:text-gray-400" />
             <input
               type="text"
               placeholder="Search courses, instructors, or topics..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full pl-10 pr-4 py-3 bg-white/10 backdrop-blur-sm border border-white/20 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:border-blue-400/50 transition-all duration-200"
+              className="w-full pl-10 pr-4 py-3 bg-white dark:bg-white/10 backdrop-blur-sm border border-sage-300 dark:border-white/20 rounded-lg text-sage-900 dark:text-white placeholder-sage-500 dark:placeholder-gray-400 focus:outline-none focus:border-blue-400/50 transition-all duration-200"
             />
           </div>
 
@@ -419,7 +413,7 @@ export default function Courses() {
             <select
               value={filterBy}
               onChange={(e) => setFilterBy(e.target.value as FilterOption)}
-              className="px-4 py-3 bg-white/10 backdrop-blur-sm border border-white/20 rounded-lg text-white focus:outline-none focus:border-blue-400/50 transition-all duration-200"
+              className="px-4 py-3 bg-white dark:bg-white/10 backdrop-blur-sm border border-sage-300 dark:border-white/20 rounded-lg text-sage-900 dark:text-white focus:outline-none focus:border-blue-400/50 transition-all duration-200"
             >
               <option value="all">All Status</option>
               <option value="active">Active</option>
@@ -430,7 +424,7 @@ export default function Courses() {
             <select
               value={sortBy}
               onChange={(e) => setSortBy(e.target.value as SortOption)}
-              className="px-4 py-3 bg-white/10 backdrop-blur-sm border border-white/20 rounded-lg text-white focus:outline-none focus:border-blue-400/50 transition-all duration-200"
+              className="px-4 py-3 bg-white dark:bg-white/10 backdrop-blur-sm border border-sage-300 dark:border-white/20 rounded-lg text-sage-900 dark:text-white focus:outline-none focus:border-blue-400/50 transition-all duration-200"
             >
               <option value="progress">Sort by Progress</option>
               <option value="title">Sort by Title</option>
@@ -464,7 +458,7 @@ export default function Courses() {
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: -20 }}
                 transition={{ delay: index * 0.1 }}
-                className={`bg-white/10 backdrop-blur-sm rounded-lg p-6 border border-white/20 hover:bg-white/15 transition-all duration-200 hover:shadow-xl hover:shadow-black/10 ${
+                className={`bg-white dark:bg-white/10 backdrop-blur-sm rounded-lg p-6 border border-sage-300 dark:border-white/20 hover:bg-white/15 transition-all duration-200 hover:shadow-xl hover:shadow-black/10 ${
                   viewMode === 'list' ? 'flex items-center gap-6' : ''
                 }`}
               >
@@ -486,12 +480,12 @@ export default function Courses() {
                           </div>
                         )}
                       </div>
-                      <h3 className="text-white font-medium">{course.title}</h3>
-                      <p className="text-sm text-gray-300">{course.instructor}</p>
+                      <h3 className="text-sage-900 dark:text-white font-medium">{course.title}</h3>
+                      <p className="text-sm text-sage-600 dark:text-gray-300">{course.instructor}</p>
                       {course.enrolled && (
                         <div className="flex items-center gap-1 mt-1">
-                          <Users className="w-3 h-3 text-gray-400" />
-                          <span className="text-xs text-gray-400">{course.enrolled} enrolled</span>
+                          <Users className="w-3 h-3 text-sage-500 dark:text-gray-400" />
+                          <span className="text-xs text-sage-500 dark:text-gray-400">{course.enrolled} enrolled</span>
                         </div>
                       )}
                     </div>
@@ -500,8 +494,8 @@ export default function Courses() {
                   <div className={`space-y-3 ${viewMode === 'list' ? 'flex-1' : ''}`}>
                     <div>
                       <div className="flex justify-between text-sm mb-1">
-                        <span className="text-gray-300">Progress</span>
-                        <span className="text-white font-medium">{course.progress}%</span>
+                        <span className="text-sage-600 dark:text-gray-300">Progress</span>
+                        <span className="text-sage-900 dark:text-white font-medium">{course.progress}%</span>
                       </div>
                       <div className="w-full bg-white/10 rounded-full h-2">
                         <div
@@ -513,17 +507,17 @@ export default function Courses() {
 
                     <div className="grid grid-cols-2 gap-4 text-sm">
                       <div className="flex justify-between">
-                        <span className="text-gray-300">Credits</span>
-                        <span className="text-white font-medium">{course.credits}</span>
+                        <span className="text-sage-600 dark:text-gray-300">Credits</span>
+                        <span className="text-sage-900 dark:text-white font-medium">{course.credits}</span>
                       </div>
                       <div className="flex justify-between">
-                        <span className="text-gray-300">Points</span>
-                        <span className="text-white font-medium">{course.points}</span>
+                        <span className="text-sage-600 dark:text-gray-300">Points</span>
+                        <span className="text-sage-900 dark:text-white font-medium">{course.points}</span>
                       </div>
                     </div>
 
                     {course.schedule && (
-                      <div className="flex items-center gap-2 text-sm text-gray-300">
+                      <div className="flex items-center gap-2 text-sm text-sage-600 dark:text-gray-300">
                         <Calendar className="w-4 h-4" />
                         <span>{course.schedule}</span>
                       </div>
@@ -533,33 +527,33 @@ export default function Courses() {
                       <div className="flex items-center gap-2">
                         <span className={`px-2 py-1 rounded-lg text-xs font-medium border ${
                           course.difficulty === 'Beginner' ? 'bg-emerald-500/10 text-emerald-300 border-emerald-400/30' :
-                          course.difficulty === 'Intermediate' ? 'bg-amber-500/10 text-amber-300 border-amber-400/30' :
+                          course.difficulty === 'Intermediate' ? 'bg-sage-500/10 text-sage-300 border-amber-400/30' :
                           'bg-rose-500/10 text-rose-300 border-rose-400/30'
                         }`}>
                           {course.difficulty}
                         </span>
                         {course.duration && (
-                          <span className="text-xs text-gray-400">{course.duration}</span>
+                          <span className="text-xs text-sage-500 dark:text-gray-400">{course.duration}</span>
                         )}
                       </div>
                     )}
                   </div>
                 </div>
 
-                <div className={`flex items-center gap-2 ${viewMode === 'list' ? 'ml-auto' : 'mt-4 pt-4 border-t border-white/10'}`}>
+                <div className={`flex items-center gap-2 ${viewMode === 'list' ? 'ml-auto' : 'mt-4 pt-4 border-t border-sage-200 dark:border-white/10'}`}>
                   <button
                     onClick={() => {
                       setSelectedCourse(course);
                       setShowCourseDetail(true);
                     }}
-                    className="flex-1 flex items-center justify-center gap-2 px-3 py-2 bg-white/10 text-white rounded-lg hover:bg-white/20 transition-colors"
+                    className="flex-1 flex items-center justify-center gap-2 px-3 py-2 bg-white/10 text-sage-900 dark:text-white rounded-lg hover:bg-white/20 transition-colors"
                   >
                     <Eye className="w-4 h-4" />
                     View
                   </button>
                   <button
                     onClick={() => startEdit(course)}
-                    className="flex-1 flex items-center justify-center gap-2 px-3 py-2 bg-white/10 text-white rounded-lg hover:bg-white/20 transition-colors"
+                    className="flex-1 flex items-center justify-center gap-2 px-3 py-2 bg-white/10 text-sage-900 dark:text-white rounded-lg hover:bg-white/20 transition-colors"
                   >
                     <Edit3 className="w-4 h-4" />
                     Edit
@@ -585,14 +579,14 @@ export default function Courses() {
             className="text-center py-16"
           >
             <BookOpen className="w-16 h-16 text-gray-500 mx-auto mb-4" />
-            <h3 className="text-xl font-semibold text-gray-300 mb-2">No courses found</h3>
+            <h3 className="text-xl font-semibold text-sage-600 dark:text-gray-300 mb-2">No courses found</h3>
             <p className="text-gray-500 mb-6">
               {searchTerm ? 'Try adjusting your search terms or filters' : 'Get started by adding your first course'}
             </p>
             {!searchTerm && (
               <button
                 onClick={() => setShowAddForm(true)}
-                className="px-6 py-3 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-lg hover:from-blue-700 hover:to-purple-700 transition-all duration-200 shadow-lg hover:shadow-xl"
+                className="px-6 py-3 bg-gradient-to-r from-blue-600 to-purple-600 text-sage-900 dark:text-white rounded-lg hover:from-blue-700 hover:to-purple-700 transition-all duration-200 shadow-lg hover:shadow-xl"
               >
                 Add Your First Course
               </button>
@@ -613,13 +607,13 @@ export default function Courses() {
                 initial={{ opacity: 0, scale: 0.95 }}
                 animate={{ opacity: 1, scale: 1 }}
                 exit={{ opacity: 0, scale: 0.95 }}
-                className="bg-gray-900 border border-white/20 rounded-2xl p-6 w-full max-w-2xl max-h-[90vh] overflow-y-auto"
+                className="bg-white dark:bg-gray-900 border border-sage-200 dark:border-sage-300 dark:border-white/20 rounded-2xl p-6 w-full max-w-2xl max-h-[90vh] overflow-y-auto"
               >
                 <div className="flex items-center justify-between mb-6">
-                  <h2 className="text-2xl font-bold text-white">{selectedCourse.title}</h2>
+                  <h2 className="text-2xl font-bold text-sage-900 dark:text-white">{selectedCourse.title}</h2>
                   <button
                     onClick={() => setShowCourseDetail(false)}
-                    className="p-2 text-gray-400 hover:text-white transition-colors"
+                    className="p-2 text-sage-500 dark:text-gray-400 hover:text-sage-900 dark:text-white transition-colors"
                   >
                     <EyeOff className="w-5 h-5" />
                   </button>
@@ -643,16 +637,16 @@ export default function Courses() {
                           </div>
                         )}
                       </div>
-                      <p className="text-white font-medium">{selectedCourse.instructor}</p>
-                      <p className="text-gray-300">{selectedCourse.description}</p>
+                      <p className="text-sage-900 dark:text-white font-medium">{selectedCourse.instructor}</p>
+                      <p className="text-sage-600 dark:text-gray-300">{selectedCourse.description}</p>
                     </div>
                   </div>
 
                   <div className="grid grid-cols-2 gap-4">
                     <div>
                       <div className="flex justify-between text-sm mb-1">
-                        <span className="text-gray-300">Progress</span>
-                        <span className="text-white font-medium">{selectedCourse.progress}%</span>
+                        <span className="text-sage-600 dark:text-gray-300">Progress</span>
+                        <span className="text-sage-900 dark:text-white font-medium">{selectedCourse.progress}%</span>
                       </div>
                       <div className="w-full bg-white/10 rounded-full h-2">
                         <div
@@ -663,22 +657,22 @@ export default function Courses() {
                     </div>
                     <div className="grid grid-cols-2 gap-4 text-sm">
                       <div className="flex justify-between">
-                        <span className="text-gray-300">Credits</span>
-                        <span className="text-white font-medium">{selectedCourse.credits}</span>
+                        <span className="text-sage-600 dark:text-gray-300">Credits</span>
+                        <span className="text-sage-900 dark:text-white font-medium">{selectedCourse.credits}</span>
                       </div>
                       <div className="flex justify-between">
-                        <span className="text-gray-300">Points</span>
-                        <span className="text-white font-medium">{selectedCourse.points}</span>
+                        <span className="text-sage-600 dark:text-gray-300">Points</span>
+                        <span className="text-sage-900 dark:text-white font-medium">{selectedCourse.points}</span>
                       </div>
                     </div>
                   </div>
 
                   {selectedCourse.syllabus.length > 0 && (
                     <div>
-                      <h3 className="text-lg font-medium text-white mb-3">Syllabus</h3>
+                      <h3 className="text-lg font-medium text-sage-900 dark:text-white mb-3">Syllabus</h3>
                       <div className="space-y-2">
                         {selectedCourse.syllabus.map((topic, index) => (
-                          <div key={index} className="flex items-center gap-2 text-sm text-gray-300">
+                          <div key={index} className="flex items-center gap-2 text-sm text-sage-600 dark:text-gray-300">
                             <div className="w-2 h-2 bg-blue-400 rounded-full"></div>
                             <span>{topic}</span>
                           </div>
@@ -689,10 +683,10 @@ export default function Courses() {
 
                   {selectedCourse.prerequisites && selectedCourse.prerequisites.length > 0 && (
                     <div>
-                      <h3 className="text-lg font-medium text-white mb-3">Prerequisites</h3>
+                      <h3 className="text-lg font-medium text-sage-900 dark:text-white mb-3">Prerequisites</h3>
                       <div className="flex flex-wrap gap-2">
                         {selectedCourse.prerequisites.map((prereq, index) => (
-                          <span key={index} className="px-3 py-1 bg-white/10 rounded-lg text-sm text-gray-300">
+                          <span key={index} className="px-3 py-1 bg-white/10 rounded-lg text-sm text-sage-600 dark:text-gray-300">
                             {prereq}
                           </span>
                         ))}
@@ -700,19 +694,19 @@ export default function Courses() {
                     </div>
                   )}
 
-                  <div className="flex items-center gap-4 pt-4 border-t border-white/20">
+                  <div className="flex items-center gap-4 pt-4 border-t border-sage-300 dark:border-white/20">
                     <button
                       onClick={() => {
                         setShowCourseDetail(false);
                         startEdit(selectedCourse);
                       }}
-                      className="flex-1 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+                      className="flex-1 px-4 py-2 bg-blue-600 text-sage-900 dark:text-white rounded-lg hover:bg-blue-700 transition-colors"
                     >
                       Edit Course
                     </button>
                     <button
                       onClick={() => setShowCourseDetail(false)}
-                      className="flex-1 px-4 py-2 bg-white/10 text-white rounded-lg hover:bg-white/20 transition-colors"
+                      className="flex-1 px-4 py-2 bg-white/10 text-sage-900 dark:text-white rounded-lg hover:bg-white/20 transition-colors"
                     >
                       Close
                     </button>
@@ -736,10 +730,10 @@ export default function Courses() {
                 initial={{ opacity: 0, scale: 0.95 }}
                 animate={{ opacity: 1, scale: 1 }}
                 exit={{ opacity: 0, scale: 0.95 }}
-                className="bg-gray-900 border border-white/20 rounded-2xl p-6 w-full max-w-2xl max-h-[90vh] overflow-y-auto"
+                className="bg-white dark:bg-gray-900 border border-sage-200 dark:border-sage-300 dark:border-white/20 rounded-2xl p-6 w-full max-w-2xl max-h-[90vh] overflow-y-auto"
               >
                 <div className="flex items-center justify-between mb-6">
-                  <h2 className="text-2xl font-bold text-white">
+                  <h2 className="text-2xl font-bold text-sage-900 dark:text-white">
                     {editingCourse ? 'Edit Course' : 'Add New Course'}
                   </h2>
                   <button
@@ -765,7 +759,7 @@ export default function Courses() {
                         status: 'active',
                       });
                     }}
-                    className="p-2 text-gray-400 hover:text-white transition-colors"
+                    className="p-2 text-sage-500 dark:text-gray-400 hover:text-sage-900 dark:text-white transition-colors"
                   >
                     <EyeOff className="w-5 h-5" />
                   </button>
@@ -774,47 +768,47 @@ export default function Courses() {
                 <form onSubmit={handleSubmit} className="space-y-6">
                   {/* Basic Information */}
                   <div className="space-y-4">
-                    <h3 className="text-lg font-medium text-white">Basic Information</h3>
+                    <h3 className="text-lg font-medium text-sage-900 dark:text-white">Basic Information</h3>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       <div>
-                        <label className="block text-sm font-medium text-gray-300 mb-2">Course Code</label>
+                        <label className="block text-sm font-medium text-sage-600 dark:text-gray-300 mb-2">Course Code</label>
                         <input
                           type="text"
                           required
                           value={form.code}
                           onChange={(e) => setForm({ ...form, code: e.target.value })}
-                          className="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-lg text-white focus:outline-none focus:border-blue-400/50 transition-colors"
+                          className="w-full px-4 py-3 bg-white/10 border border-sage-300 dark:border-white/20 rounded-lg text-sage-900 dark:text-white focus:outline-none focus:border-blue-400/50 transition-colors"
                         />
                       </div>
 
                       <div>
-                        <label className="block text-sm font-medium text-gray-300 mb-2">Course Title</label>
+                        <label className="block text-sm font-medium text-sage-600 dark:text-gray-300 mb-2">Course Title</label>
                         <input
                           type="text"
                           required
                           value={form.title}
                           onChange={(e) => setForm({ ...form, title: e.target.value })}
-                          className="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-lg text-white focus:outline-none focus:border-blue-400/50 transition-colors"
+                          className="w-full px-4 py-3 bg-white/10 border border-sage-300 dark:border-white/20 rounded-lg text-sage-900 dark:text-white focus:outline-none focus:border-blue-400/50 transition-colors"
                         />
                       </div>
 
                       <div>
-                        <label className="block text-sm font-medium text-gray-300 mb-2">Instructor</label>
+                        <label className="block text-sm font-medium text-sage-600 dark:text-gray-300 mb-2">Instructor</label>
                         <input
                           type="text"
                           required
                           value={form.instructor}
                           onChange={(e) => setForm({ ...form, instructor: e.target.value })}
-                          className="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-lg text-white focus:outline-none focus:border-blue-400/50 transition-colors"
+                          className="w-full px-4 py-3 bg-white/10 border border-sage-300 dark:border-white/20 rounded-lg text-sage-900 dark:text-white focus:outline-none focus:border-blue-400/50 transition-colors"
                         />
                       </div>
 
                       <div>
-                        <label className="block text-sm font-medium text-gray-300 mb-2">Difficulty</label>
+                        <label className="block text-sm font-medium text-sage-600 dark:text-gray-300 mb-2">Difficulty</label>
                         <select
                           value={form.difficulty}
                           onChange={(e) => setForm({ ...form, difficulty: e.target.value as 'Beginner' | 'Intermediate' | 'Advanced' })}
-                          className="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-lg text-white focus:outline-none focus:border-blue-400/50 transition-colors"
+                          className="w-full px-4 py-3 bg-white/10 border border-sage-300 dark:border-white/20 rounded-lg text-sage-900 dark:text-white focus:outline-none focus:border-blue-400/50 transition-colors"
                         >
                           <option value="Beginner">Beginner</option>
                           <option value="Intermediate">Intermediate</option>
@@ -824,22 +818,22 @@ export default function Courses() {
                     </div>
 
                     <div>
-                      <label className="block text-sm font-medium text-gray-300 mb-2">Description</label>
+                      <label className="block text-sm font-medium text-sage-600 dark:text-gray-300 mb-2">Description</label>
                       <textarea
                         value={form.description}
                         onChange={(e) => setForm({ ...form, description: e.target.value })}
                         rows={3}
-                        className="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-lg text-white focus:outline-none focus:border-blue-400/50 transition-colors"
+                        className="w-full px-4 py-3 bg-white/10 border border-sage-300 dark:border-white/20 rounded-lg text-sage-900 dark:text-white focus:outline-none focus:border-blue-400/50 transition-colors"
                       />
                     </div>
                   </div>
 
                   {/* Course Details */}
                   <div className="space-y-4">
-                    <h3 className="text-lg font-medium text-white">Course Details</h3>
+                    <h3 className="text-lg font-medium text-sage-900 dark:text-white">Course Details</h3>
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                       <div>
-                        <label className="block text-sm font-medium text-gray-300 mb-2">Credits</label>
+                        <label className="block text-sm font-medium text-sage-600 dark:text-gray-300 mb-2">Credits</label>
                         <input
                           type="number"
                           required
@@ -847,12 +841,12 @@ export default function Courses() {
                           max="10"
                           value={form.credits}
                           onChange={(e) => setForm({ ...form, credits: e.target.value })}
-                          className="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-lg text-white focus:outline-none focus:border-blue-400/50 transition-colors"
+                          className="w-full px-4 py-3 bg-white/10 border border-sage-300 dark:border-white/20 rounded-lg text-sage-900 dark:text-white focus:outline-none focus:border-blue-400/50 transition-colors"
                         />
                       </div>
 
                       <div>
-                        <label className="block text-sm font-medium text-gray-300 mb-2">Progress (%)</label>
+                        <label className="block text-sm font-medium text-sage-600 dark:text-gray-300 mb-2">Progress (%)</label>
                         <input
                           type="number"
                           required
@@ -860,24 +854,24 @@ export default function Courses() {
                           max="100"
                           value={form.progress}
                           onChange={(e) => setForm({ ...form, progress: e.target.value })}
-                          className="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-lg text-white focus:outline-none focus:border-blue-400/50 transition-colors"
+                          className="w-full px-4 py-3 bg-white/10 border border-sage-300 dark:border-white/20 rounded-lg text-sage-900 dark:text-white focus:outline-none focus:border-blue-400/50 transition-colors"
                         />
                       </div>
 
                       <div>
-                        <label className="block text-sm font-medium text-gray-300 mb-2">Points</label>
+                        <label className="block text-sm font-medium text-sage-600 dark:text-gray-300 mb-2">Points</label>
                         <input
                           type="number"
                           required
                           min="0"
                           value={form.points}
                           onChange={(e) => setForm({ ...form, points: e.target.value })}
-                          className="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-lg text-white focus:outline-none focus:border-blue-400/50 transition-colors"
+                          className="w-full px-4 py-3 bg-white/10 border border-sage-300 dark:border-white/20 rounded-lg text-sage-900 dark:text-white focus:outline-none focus:border-blue-400/50 transition-colors"
                         />
                       </div>
 
                       <div>
-                        <label className="block text-sm font-medium text-gray-300 mb-2">Rating</label>
+                        <label className="block text-sm font-medium text-sage-600 dark:text-gray-300 mb-2">Rating</label>
                         <input
                           type="number"
                           min="0"
@@ -885,27 +879,27 @@ export default function Courses() {
                           step="0.1"
                           value={form.rating}
                           onChange={(e) => setForm({ ...form, rating: Number(e.target.value) })}
-                          className="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-lg text-white focus:outline-none focus:border-blue-400/50 transition-colors"
+                          className="w-full px-4 py-3 bg-white/10 border border-sage-300 dark:border-white/20 rounded-lg text-sage-900 dark:text-white focus:outline-none focus:border-blue-400/50 transition-colors"
                         />
                       </div>
 
                       <div>
-                        <label className="block text-sm font-medium text-gray-300 mb-2">Enrolled</label>
+                        <label className="block text-sm font-medium text-sage-600 dark:text-gray-300 mb-2">Enrolled</label>
                         <input
                           type="number"
                           min="0"
                           value={form.enrolled}
                           onChange={(e) => setForm({ ...form, enrolled: Number(e.target.value) })}
-                          className="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-lg text-white focus:outline-none focus:border-blue-400/50 transition-colors"
+                          className="w-full px-4 py-3 bg-white/10 border border-sage-300 dark:border-white/20 rounded-lg text-sage-900 dark:text-white focus:outline-none focus:border-blue-400/50 transition-colors"
                         />
                       </div>
 
                       <div>
-                        <label className="block text-sm font-medium text-gray-300 mb-2">Status</label>
+                        <label className="block text-sm font-medium text-sage-600 dark:text-gray-300 mb-2">Status</label>
                         <select
                           value={form.status}
                           onChange={(e) => setForm({ ...form, status: e.target.value as 'active' | 'completed' | 'archived' })}
-                          className="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-lg text-white focus:outline-none focus:border-blue-400/50 transition-colors"
+                          className="w-full px-4 py-3 bg-white/10 border border-sage-300 dark:border-white/20 rounded-lg text-sage-900 dark:text-white focus:outline-none focus:border-blue-400/50 transition-colors"
                         >
                           <option value="active">Active</option>
                           <option value="completed">Completed</option>
@@ -916,24 +910,24 @@ export default function Courses() {
 
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       <div>
-                        <label className="block text-sm font-medium text-gray-300 mb-2">Schedule</label>
+                        <label className="block text-sm font-medium text-sage-600 dark:text-gray-300 mb-2">Schedule</label>
                         <input
                           type="text"
                           value={form.schedule}
                           onChange={(e) => setForm({ ...form, schedule: e.target.value })}
                           placeholder="Mon, Wed · 10:00 - 11:30"
-                          className="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-lg text-white focus:outline-none focus:border-blue-400/50 transition-colors"
+                          className="w-full px-4 py-3 bg-white/10 border border-sage-300 dark:border-white/20 rounded-lg text-sage-900 dark:text-white focus:outline-none focus:border-blue-400/50 transition-colors"
                         />
                       </div>
 
                       <div>
-                        <label className="block text-sm font-medium text-gray-300 mb-2">Duration</label>
+                        <label className="block text-sm font-medium text-sage-600 dark:text-gray-300 mb-2">Duration</label>
                         <input
                           type="text"
                           value={form.duration}
                           onChange={(e) => setForm({ ...form, duration: e.target.value })}
                           placeholder="16 weeks"
-                          className="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-lg text-white focus:outline-none focus:border-blue-400/50 transition-colors"
+                          className="w-full px-4 py-3 bg-white/10 border border-sage-300 dark:border-white/20 rounded-lg text-sage-900 dark:text-white focus:outline-none focus:border-blue-400/50 transition-colors"
                         />
                       </div>
                     </div>
@@ -941,33 +935,33 @@ export default function Courses() {
 
                   {/* Additional Information */}
                   <div className="space-y-4">
-                    <h3 className="text-lg font-medium text-white">Additional Information</h3>
+                    <h3 className="text-lg font-medium text-sage-900 dark:text-white">Additional Information</h3>
                     <div className="space-y-4">
                       <div>
-                        <label className="block text-sm font-medium text-gray-300 mb-2">Syllabus (comma-separated)</label>
+                        <label className="block text-sm font-medium text-sage-600 dark:text-gray-300 mb-2">Syllabus (comma-separated)</label>
                         <input
                           type="text"
                           value={form.syllabus}
                           onChange={(e) => setForm({ ...form, syllabus: e.target.value })}
                           placeholder="Arrays, Linked Lists, Trees, Graphs"
-                          className="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-lg text-white focus:outline-none focus:border-blue-400/50 transition-colors"
+                          className="w-full px-4 py-3 bg-white/10 border border-sage-300 dark:border-white/20 rounded-lg text-sage-900 dark:text-white focus:outline-none focus:border-blue-400/50 transition-colors"
                         />
                       </div>
 
                       <div>
-                        <label className="block text-sm font-medium text-gray-300 mb-2">Prerequisites (comma-separated)</label>
+                        <label className="block text-sm font-medium text-sage-600 dark:text-gray-300 mb-2">Prerequisites (comma-separated)</label>
                         <input
                           type="text"
                           value={form.prerequisites}
                           onChange={(e) => setForm({ ...form, prerequisites: e.target.value })}
                           placeholder="CS101 - Programming Fundamentals, MATH201 - Linear Algebra"
-                          className="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-lg text-white focus:outline-none focus:border-blue-400/50 transition-colors"
+                          className="w-full px-4 py-3 bg-white/10 border border-sage-300 dark:border-white/20 rounded-lg text-sage-900 dark:text-white focus:outline-none focus:border-blue-400/50 transition-colors"
                         />
                       </div>
                     </div>
                   </div>
 
-                  <div className="flex gap-4 pt-6 border-t border-white/20">
+                  <div className="flex gap-4 pt-6 border-t border-sage-300 dark:border-white/20">
                     <button
                       type="button"
                       onClick={() => {
@@ -992,13 +986,13 @@ export default function Courses() {
                           status: 'active',
                         });
                       }}
-                      className="flex-1 px-6 py-3 bg-white/10 text-white rounded-lg hover:bg-white/20 transition-colors"
+                      className="flex-1 px-6 py-3 bg-white/10 text-sage-900 dark:text-white rounded-lg hover:bg-white/20 transition-colors"
                     >
                       Cancel
                     </button>
                     <button
                       type="submit"
-                      className="flex-1 px-6 py-3 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-lg hover:from-blue-700 hover:to-purple-700 transition-all duration-200 shadow-lg hover:shadow-xl"
+                      className="flex-1 px-6 py-3 bg-gradient-to-r from-blue-600 to-purple-600 text-sage-900 dark:text-white rounded-lg hover:from-blue-700 hover:to-purple-700 transition-all duration-200 shadow-lg hover:shadow-xl"
                     >
                       {editingCourse ? 'Update Course' : 'Add Course'}
                     </button>

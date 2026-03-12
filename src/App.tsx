@@ -74,7 +74,7 @@ function App() {
 
   return (
     <ErrorBoundary>
-      <div className="flex h-screen bg-[#0B0B0B] overflow-hidden">
+      <div className="flex h-screen bg-sage-50 dark:bg-[#0B0B0B] overflow-hidden transition-colors duration-300">
         <Sidebar isCollapsed={isSidebarCollapsed} setIsCollapsed={setIsSidebarCollapsed} />
 
         <div className="flex-1 overflow-y-auto">

@@ -73,16 +73,16 @@ export default function FocusHub({ onDeepWorkToggle }: FocusHubProps) {
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.5, delay: 0.2 }}
-      className="bg-white/5 backdrop-blur-xl rounded-2xl p-6 border border-white/10 hover:border-white/20 transition-all"
+      className="bg-white dark:bg-white/5 backdrop-blur-xl rounded-2xl p-6 border border-gray-200 dark:border-white/10 hover:border-sage-300 dark:hover:border-white/20 transition-all"
     >
       <div className="flex items-center justify-between mb-6">
         <div className="flex items-center gap-3">
           <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-orange-500 to-red-500 flex items-center justify-center">
-            <Zap size={20} className="text-white" />
+            <Zap size={20} className="text-sage-900 dark:text-white" />
           </div>
           <div>
-            <h2 className="text-xl font-bold text-white">Focus Hub</h2>
-            <p className="text-xs text-gray-400">Pomodoro Timer</p>
+            <h2 className="text-xl font-bold text-sage-900 dark:text-white">Focus Hub</h2>
+            <p className="text-xs text-sage-500 dark:text-gray-400">Pomodoro Timer</p>
           </div>
         </div>
 
@@ -92,8 +92,8 @@ export default function FocusHub({ onDeepWorkToggle }: FocusHubProps) {
           onClick={toggleDeepWork}
           className={`px-4 py-2 rounded-lg font-medium text-sm transition-all ${
             isDeepWork
-              ? 'bg-gradient-to-r from-orange-500 to-red-500 text-white shadow-lg shadow-orange-500/30'
-              : 'bg-white/10 text-gray-300 hover:bg-white/20'
+              ? 'bg-gradient-to-r from-orange-500 to-red-500 text-sage-900 dark:text-white shadow-lg shadow-orange-500/30'
+              : 'bg-white/10 text-sage-600 dark:text-gray-300 hover:bg-white/20'
           }`}
         >
           Deep Work
@@ -140,7 +140,7 @@ export default function FocusHub({ onDeepWorkToggle }: FocusHubProps) {
                 initial={{ scale: 0.8, opacity: 0 }}
                 animate={{ scale: 1, opacity: 1 }}
                 exit={{ scale: 1.2, opacity: 0 }}
-                className="text-5xl font-bold text-white tabular-nums"
+                className="text-5xl font-bold text-sage-900 dark:text-white tabular-nums"
               >
                 {String(minutes).padStart(2, '0')}:{String(seconds).padStart(2, '0')}
               </motion.div>
@@ -153,7 +153,7 @@ export default function FocusHub({ onDeepWorkToggle }: FocusHubProps) {
             whileHover={{ scale: 1.1 }}
             whileTap={{ scale: 0.9 }}
             onClick={() => setIsRunning(!isRunning)}
-            className="w-14 h-14 rounded-full bg-gradient-to-br from-orange-500 to-red-500 flex items-center justify-center text-white shadow-lg shadow-orange-500/30 hover:shadow-orange-500/50 transition-shadow"
+            className="w-14 h-14 rounded-full bg-gradient-to-br from-orange-500 to-red-500 flex items-center justify-center text-sage-900 dark:text-white shadow-lg shadow-orange-500/30 hover:shadow-orange-500/50 transition-shadow"
           >
             {isRunning ? <Pause size={24} /> : <Play size={24} className="ml-1" />}
           </motion.button>
@@ -165,7 +165,7 @@ export default function FocusHub({ onDeepWorkToggle }: FocusHubProps) {
               setTime(25 * 60);
               setIsRunning(false);
             }}
-            className="w-12 h-12 rounded-full bg-white/10 flex items-center justify-center text-gray-300 hover:bg-white/20 transition-colors"
+            className="w-12 h-12 rounded-full bg-white/10 flex items-center justify-center text-sage-600 dark:text-gray-300 hover:bg-white/20 transition-colors"
           >
             <RotateCcw size={20} />
           </motion.button>
@@ -180,7 +180,7 @@ export default function FocusHub({ onDeepWorkToggle }: FocusHubProps) {
             <input
               value={subject}
               onChange={(e) => setSubject(e.target.value)}
-              className="flex-1 rounded-xl bg-black/40 text-white border border-white/10 px-3 py-2 outline-none focus:border-white/20 text-sm"
+              className="flex-1 rounded-xl bg-white text-sage-900 placeholder:text-sage-500 border border-gray-200 dark:bg-black/40 dark:text-white dark:placeholder:text-gray-400 dark:border-white/10 px-3 py-2 outline-none focus:border-sage-300 dark:focus:border-white/20 text-sm"
               placeholder="What did you focus on? (e.g. DSA, Physics)"
             />
             <motion.button
@@ -196,7 +196,7 @@ export default function FocusHub({ onDeepWorkToggle }: FocusHubProps) {
           </div>
 
           {logMessage && (
-            <p className="text-xs text-center text-gray-300 bg-white/5 rounded-xl px-3 py-2">
+            <p className="text-xs text-center text-sage-600 dark:text-gray-300 bg-white/5 rounded-xl px-3 py-2">
               {logMessage}
             </p>
           )}

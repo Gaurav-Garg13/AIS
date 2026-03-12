@@ -138,16 +138,16 @@ export default function Grades() {
   const totalCredits = useMemo(() => filteredAndSortedRows.reduce((sum, r) => sum + r.credits, 0), [filteredAndSortedRows]);
 
   const gradeColors: Record<GradeRow['grade'], string> = {
-    'A+': 'bg-gradient-to-r from-emerald-500 to-teal-500 text-white border-emerald-400',
-    'A': 'bg-gradient-to-r from-emerald-400 to-green-500 text-white border-green-400',
-    'A-': 'bg-gradient-to-r from-green-400 to-emerald-500 text-white border-green-400',
-    'B+': 'bg-gradient-to-r from-blue-400 to-indigo-500 text-white border-blue-400',
-    'B': 'bg-gradient-to-r from-blue-300 to-blue-500 text-white border-blue-400',
-    'B-': 'bg-gradient-to-r from-blue-300 to-blue-400 text-white border-blue-300',
-    'C': 'bg-gradient-to-r from-yellow-400 to-orange-500 text-white border-yellow-400',
-    'C-': 'bg-gradient-to-r from-yellow-300 to-yellow-400 text-white border-yellow-300',
-    'D': 'bg-gradient-to-r from-orange-400 to-red-500 text-white border-orange-400',
-    'F': 'bg-gradient-to-r from-red-500 to-rose-600 text-white border-red-400',
+    'A+': 'bg-gradient-to-r from-emerald-500 to-teal-500 text-sage-900 dark:text-white border-emerald-400',
+    'A': 'bg-gradient-to-r from-emerald-400 to-green-500 text-sage-900 dark:text-white border-green-400',
+    'A-': 'bg-gradient-to-r from-green-400 to-emerald-500 text-sage-900 dark:text-white border-green-400',
+    'B+': 'bg-gradient-to-r from-blue-400 to-indigo-500 text-sage-900 dark:text-white border-blue-400',
+    'B': 'bg-gradient-to-r from-blue-300 to-blue-500 text-sage-900 dark:text-white border-blue-400',
+    'B-': 'bg-gradient-to-r from-blue-300 to-blue-400 text-sage-900 dark:text-white border-blue-300',
+    'C': 'bg-gradient-to-r from-yellow-400 to-emerald-500 text-sage-900 dark:text-white border-yellow-400',
+    'C-': 'bg-gradient-to-r from-yellow-300 to-yellow-400 text-sage-900 dark:text-white border-yellow-300',
+    'D': 'bg-gradient-to-r from-orange-400 to-red-500 text-sage-900 dark:text-white border-orange-400',
+    'F': 'bg-gradient-to-r from-red-500 to-rose-600 text-sage-900 dark:text-white border-red-400',
   };
 
   return (
@@ -160,49 +160,49 @@ export default function Grades() {
       >
         <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
           <div>
-            <h1 className="text-3xl font-bold text-white mb-2">Grades</h1>
-            <p className="text-sm text-gray-400">
+            <h1 className="text-3xl font-bold text-sage-900 dark:text-white mb-2">Grades</h1>
+            <p className="text-sm text-sage-500 dark:text-gray-400">
               Track your academic performance with detailed grade analysis and GPA calculation.
             </p>
           </div>
           
           <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-            <div className="bg-white/5 backdrop-blur-xl rounded-xl p-4 border border-white/10">
+            <div className="bg-white dark:bg-white/5 backdrop-blur-xl rounded-xl p-4 border border-gray-200 dark:border-white/10">
               <div className="flex items-center gap-2 mb-1">
                 <BarChart3 className="w-4 h-4 text-purple-400" />
-                <span className="text-xs text-gray-400">GPA</span>
+                <span className="text-xs text-sage-500 dark:text-gray-400">GPA</span>
               </div>
-              <p className="text-2xl font-bold text-white">{gpa.toFixed(2)}</p>
-              <p className="text-xs text-gray-400">out of 4.0</p>
+              <p className="text-2xl font-bold text-sage-900 dark:text-white">{gpa.toFixed(2)}</p>
+              <p className="text-xs text-sage-500 dark:text-gray-400">out of 10</p>
             </div>
             
-            <div className="bg-white/5 backdrop-blur-xl rounded-xl p-4 border border-white/10">
+            <div className="bg-white dark:bg-white/5 backdrop-blur-xl rounded-xl p-4 border border-gray-200 dark:border-white/10">
               <div className="flex items-center gap-2 mb-1">
                 <Target className="w-4 h-4 text-green-400" />
-                <span className="text-xs text-gray-400">Credits</span>
+                <span className="text-xs text-sage-500 dark:text-gray-400">Credits</span>
               </div>
-              <p className="text-2xl font-bold text-white">{totalCredits}</p>
-              <p className="text-xs text-gray-400">total</p>
+              <p className="text-2xl font-bold text-sage-900 dark:text-white">{totalCredits}</p>
+              <p className="text-xs text-sage-500 dark:text-gray-400">total</p>
             </div>
             
-            <div className="bg-white/5 backdrop-blur-xl rounded-xl p-4 border border-white/10">
+            <div className="bg-white dark:bg-white/5 backdrop-blur-xl rounded-xl p-4 border border-gray-200 dark:border-white/10">
               <div className="flex items-center gap-2 mb-1">
                 <Award className="w-4 h-4 text-yellow-400" />
-                <span className="text-xs text-gray-400">Courses</span>
+                <span className="text-xs text-sage-500 dark:text-gray-400">Courses</span>
               </div>
-              <p className="text-2xl font-bold text-white">{filteredAndSortedRows.length}</p>
-              <p className="text-xs text-gray-400">total</p>
+              <p className="text-2xl font-bold text-sage-900 dark:text-white">{filteredAndSortedRows.length}</p>
+              <p className="text-xs text-sage-500 dark:text-gray-400">total</p>
             </div>
             
-            <div className="bg-white/5 backdrop-blur-xl rounded-xl p-4 border border-white/10">
+            <div className="bg-white dark:bg-white/5 backdrop-blur-xl rounded-xl p-4 border border-gray-200 dark:border-white/10">
               <div className="flex items-center gap-2 mb-1">
                 <Users className="w-4 h-4 text-blue-400" />
-                <span className="text-xs text-gray-400">Points</span>
+                <span className="text-xs text-sage-500 dark:text-gray-400">Points</span>
               </div>
-              <p className="text-2xl font-bold text-white">
+              <p className="text-2xl font-bold text-sage-900 dark:text-white">
                 {filteredAndSortedRows.reduce((sum, r) => sum + (r.points || gradePoints[r.grade] * r.credits), 0)}
               </p>
-              <p className="text-xs text-gray-400">total</p>
+              <p className="text-xs text-sage-500 dark:text-gray-400">total</p>
             </div>
           </div>
         </div>
@@ -210,13 +210,13 @@ export default function Grades() {
         {/* Search and Filters */}
         <div className="flex flex-col md:flex-row gap-4">
           <div className="relative flex-1">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-sage-500 dark:text-gray-400" />
             <input
               type="text"
               placeholder="Search courses, codes, or grades..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full pl-10 pr-4 py-2 bg-white/10 border border-white/20 rounded-xl text-white placeholder-gray-400 focus:outline-none focus:border-white/30 transition-all"
+              className="w-full pl-10 pr-4 py-2 bg-white/10 border border-sage-300 dark:border-white/20 rounded-xl text-sage-900 dark:text-white placeholder-sage-500 dark:placeholder-gray-400 focus:outline-none focus:border-white/30 transition-all"
             />
           </div>
           
@@ -224,7 +224,7 @@ export default function Grades() {
             <select
               value={sortBy}
               onChange={(e) => setSortBy(e.target.value as 'grade' | 'credits' | 'points' | 'course')}
-              className="px-4 py-2 bg-white/10 border border-white/20 rounded-xl text-white focus:outline-none focus:border-white/30 transition-all"
+              className="px-4 py-2 bg-white/10 border border-sage-300 dark:border-white/20 rounded-xl text-sage-900 dark:text-white focus:outline-none focus:border-white/30 transition-all"
             >
               <option value="course">Sort by Course</option>
               <option value="grade">Sort by Grade</option>
@@ -236,7 +236,7 @@ export default function Grades() {
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
               onClick={() => setIsAdding(true)}
-              className="px-4 py-2 bg-gradient-to-r from-blue-500 to-purple-500 text-white rounded-xl font-medium hover:from-blue-600 hover:to-purple-600 transition-all flex items-center gap-2"
+              className="px-4 py-2 bg-gradient-to-r from-blue-500 to-purple-500 text-sage-900 dark:text-white rounded-xl font-medium hover:from-blue-600 hover:to-purple-600 transition-all flex items-center gap-2"
             >
               <Plus className="w-4 h-4" />
               Add Grade
@@ -247,7 +247,7 @@ export default function Grades() {
               whileTap={{ scale: 0.95 }}
               onClick={() => saveGrades(rows)}
               disabled={saveStatus === 'saving'}
-              className="px-4 py-2 bg-gradient-to-r from-green-500 to-emerald-500 text-white rounded-xl font-medium hover:from-green-600 hover:to-emerald-600 transition-all flex items-center gap-2 disabled:opacity-50"
+              className="px-4 py-2 bg-gradient-to-r from-green-500 to-emerald-500 text-sage-900 dark:text-white rounded-xl font-medium hover:from-green-600 hover:to-emerald-600 transition-all flex items-center gap-2 disabled:opacity-50"
             >
               {saveStatus === 'saving' ? (
                 <RefreshCw className="w-4 h-4 animate-spin" />
@@ -271,52 +271,52 @@ export default function Grades() {
             initial={{ opacity: 0, y: -20 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -20 }}
-            className="bg-white/5 backdrop-blur-xl rounded-2xl border border-white/10 p-6"
+            className="bg-white dark:bg-white/5 backdrop-blur-xl rounded-2xl border border-gray-200 dark:border-white/10 p-6"
           >
-            <h3 className="text-lg font-semibold text-white mb-4 flex items-center gap-2">
+            <h3 className="text-lg font-semibold text-sage-900 dark:text-white mb-4 flex items-center gap-2">
               <Plus className="w-5 h-5" />
               Add New Grade
             </h3>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
-                <label className="block text-sm font-medium text-gray-300 mb-2">Course Name</label>
+                <label className="block text-sm font-medium text-sage-600 dark:text-gray-300 mb-2">Course Name</label>
                 <input
                   type="text"
                   value={newRow.course}
                   onChange={(e) => setNewRow(prev => ({ ...prev, course: e.target.value }))}
-                  className="w-full px-3 py-2 bg-white/10 border border-white/20 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:border-white/30 transition-all"
+                  className="w-full px-3 py-2 bg-white/10 border border-sage-300 dark:border-white/20 rounded-lg text-sage-900 dark:text-white placeholder-sage-500 dark:placeholder-gray-400 focus:outline-none focus:border-white/30 transition-all"
                   placeholder="Enter course name"
                 />
               </div>
               
               <div>
-                <label className="block text-sm font-medium text-gray-300 mb-2">Course Code</label>
+                <label className="block text-sm font-medium text-sage-600 dark:text-gray-300 mb-2">Course Code</label>
                 <input
                   type="text"
                   value={newRow.code}
                   onChange={(e) => setNewRow(prev => ({ ...prev, code: e.target.value }))}
-                  className="w-full px-3 py-2 bg-white/10 border border-white/20 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:border-white/30 transition-all"
+                  className="w-full px-3 py-2 bg-white/10 border border-sage-300 dark:border-white/20 rounded-lg text-sage-900 dark:text-white placeholder-sage-500 dark:placeholder-gray-400 focus:outline-none focus:border-white/30 transition-all"
                   placeholder="Enter course code"
                 />
               </div>
               
               <div>
-                <label className="block text-sm font-medium text-gray-300 mb-2">Credits</label>
+                <label className="block text-sm font-medium text-sage-600 dark:text-gray-300 mb-2">Credits</label>
                 <input
                   type="number"
                   value={newRow.credits}
                   onChange={(e) => setNewRow(prev => ({ ...prev, credits: e.target.value }))}
-                  className="w-full px-3 py-2 bg-white/10 border border-white/20 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:border-white/30 transition-all"
+                  className="w-full px-3 py-2 bg-white/10 border border-sage-300 dark:border-white/20 rounded-lg text-sage-900 dark:text-white placeholder-sage-500 dark:placeholder-gray-400 focus:outline-none focus:border-white/30 transition-all"
                   placeholder="Enter credits"
                 />
               </div>
               
               <div>
-                <label className="block text-sm font-medium text-gray-300 mb-2">Grade</label>
+                <label className="block text-sm font-medium text-sage-600 dark:text-gray-300 mb-2">Grade</label>
                 <select
                   value={newRow.grade}
                   onChange={(e) => setNewRow(prev => ({ ...prev, grade: e.target.value as GradeRow['grade'] }))}
-                  className="w-full px-3 py-2 bg-white/10 border border-white/20 rounded-lg text-white focus:outline-none focus:border-white/30 transition-all"
+                  className="w-full px-3 py-2 bg-white/10 border border-sage-300 dark:border-white/20 rounded-lg text-sage-900 dark:text-white focus:outline-none focus:border-white/30 transition-all"
                 >
                   <option value="A+">A+</option>
                   <option value="A">A</option>
@@ -351,7 +351,7 @@ export default function Grades() {
                     saveGrades([...rows, newGrade]);
                   }
                 }}
-                className="flex-1 px-4 py-2 bg-gradient-to-r from-blue-500 to-purple-500 text-white rounded-lg font-medium hover:from-blue-600 hover:to-purple-600 transition-all"
+                className="flex-1 px-4 py-2 bg-gradient-to-r from-blue-500 to-purple-500 text-sage-900 dark:text-white rounded-lg font-medium hover:from-blue-600 hover:to-purple-600 transition-all"
               >
                 <Plus className="w-4 h-4 mr-2" />
                 Add Grade
@@ -364,7 +364,7 @@ export default function Grades() {
                   setIsAdding(false);
                   setNewRow({ course: '', code: '', credits: '', grade: 'A', points: '' });
                 }}
-                className="px-4 py-2 bg-gray-500 text-white rounded-lg font-medium hover:bg-gray-600 transition-all"
+                className="px-4 py-2 bg-gray-500 text-sage-900 dark:text-white rounded-lg font-medium hover:bg-gray-600 transition-all"
               >
                 <X className="w-4 h-4 mr-2" />
                 Cancel
@@ -378,11 +378,11 @@ export default function Grades() {
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        className="bg-white/5 backdrop-blur-xl rounded-2xl border border-white/10 overflow-hidden"
+        className="bg-white dark:bg-white/5 backdrop-blur-xl rounded-2xl border border-gray-200 dark:border-white/10 overflow-hidden"
       >
         <div className="overflow-x-auto">
           <table className="min-w-full">
-            <thead className="text-xs uppercase text-gray-400 bg-white/5">
+            <thead className="text-xs uppercase text-sage-500 dark:text-gray-400 bg-white/5">
               <tr>
                 <th className="px-4 py-3 text-left">Course</th>
                 <th className="px-4 py-3 text-left">Code</th>
@@ -401,7 +401,7 @@ export default function Grades() {
                     animate={{ opacity: 1, x: 0 }}
                     exit={{ opacity: 0, x: 20 }}
                     transition={{ duration: 0.3, delay: index * 0.05 }}
-                    className="border-t border-white/10 hover:bg-white/10"
+                    className="border-t border-sage-200 dark:border-white/10 hover:bg-white/10"
                   >
                     <td className="px-4 py-3">
                       {editingCode === row.code ? (
@@ -414,14 +414,14 @@ export default function Grades() {
                             );
                             setRows(updatedRows);
                           }}
-                          className="w-full px-2 py-1 bg-white/10 border border-white/20 rounded text-white text-sm focus:outline-none focus:border-white/30"
+                          className="w-full px-2 py-1 bg-white/10 border border-sage-300 dark:border-white/20 rounded text-sage-900 dark:text-white text-sm focus:outline-none focus:border-white/30"
                         />
                       ) : (
-                        <div className="font-medium text-white">{row.course}</div>
+                        <div className="font-medium text-sage-900 dark:text-white">{row.course}</div>
                       )}
                     </td>
                     <td className="px-4 py-3">
-                      <span className="text-gray-300 font-mono">{row.code}</span>
+                      <span className="text-sage-600 dark:text-gray-300 font-mono">{row.code}</span>
                     </td>
                     <td className="px-4 py-3 text-center">
                       {editingCode === row.code ? (
@@ -434,10 +434,10 @@ export default function Grades() {
                             );
                             setRows(updatedRows);
                           }}
-                          className="w-16 px-2 py-1 bg-white/10 border border-white/20 rounded text-white text-center text-sm focus:outline-none focus:border-white/30"
+                          className="w-16 px-2 py-1 bg-white/10 border border-sage-300 dark:border-white/20 rounded text-sage-900 dark:text-white text-center text-sm focus:outline-none focus:border-white/30"
                         />
                       ) : (
-                        <span className="text-white font-semibold">{row.credits}</span>
+                        <span className="text-sage-900 dark:text-white font-semibold">{row.credits}</span>
                       )}
                     </td>
                     <td className="px-4 py-3 text-center">
@@ -450,7 +450,7 @@ export default function Grades() {
                             );
                             setRows(updatedRows);
                           }}
-                          className="px-2 py-1 bg-white/10 border border-white/20 rounded text-white text-sm focus:outline-none focus:border-white/30"
+                          className="px-2 py-1 bg-white/10 border border-sage-300 dark:border-white/20 rounded text-sage-900 dark:text-white text-sm focus:outline-none focus:border-white/30"
                         >
                           <option value="A+">A+</option>
                           <option value="A">A</option>
@@ -475,7 +475,7 @@ export default function Grades() {
                       )}
                     </td>
                     <td className="px-4 py-3 text-center">
-                      <span className="text-white font-medium">
+                      <span className="text-sage-900 dark:text-white font-medium">
                         {row.points || gradePoints[row.grade] * row.credits}
                       </span>
                     </td>
@@ -498,7 +498,7 @@ export default function Grades() {
                               whileHover={{ scale: 1.1 }}
                               whileTap={{ scale: 0.9 }}
                               onClick={() => setEditingCode(null)}
-                              className="p-1 text-gray-400 hover:text-gray-300 transition-colors"
+                              className="p-1 text-sage-500 dark:text-gray-400 hover:text-sage-600 dark:text-gray-300 transition-colors"
                             >
                               <X className="w-4 h-4" />
                             </motion.button>

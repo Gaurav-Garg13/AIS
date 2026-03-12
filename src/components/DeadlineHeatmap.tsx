@@ -96,7 +96,7 @@ export default function DeadlineHeatmap() {
   };
 
   const getColorIntensity = (count: number) => {
-    if (count === 0) return 'bg-white/5';
+    if (count === 0) return 'bg-gray-50 dark:bg-white/5';
     if (count === 1) return 'bg-blue-500/20';
     if (count === 2) return 'bg-blue-500/40';
     if (count === 3) return 'bg-blue-500/60';
@@ -124,15 +124,15 @@ export default function DeadlineHeatmap() {
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.5, delay: 0.4 }}
-      className="bg-white/5 backdrop-blur-xl rounded-2xl p-6 border border-white/10 hover:border-white/20 transition-all"
+      className="bg-white dark:bg-white/5 backdrop-blur-xl rounded-2xl p-6 border border-gray-200 dark:border-white/10 hover:border-sage-300 dark:hover:border-white/20 transition-all"
     >
       <div className="flex items-center gap-3 mb-4">
         <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-cyan-500 to-blue-500 flex items-center justify-center">
-          <Calendar size={20} className="text-white" />
+          <Calendar size={20} className="text-sage-900 dark:text-white" />
         </div>
         <div>
-          <h2 className="text-xl font-bold text-white">Activity & Deadlines</h2>
-          <p className="text-xs text-gray-400">Last 12 weeks activity</p>
+          <h2 className="text-xl font-bold text-sage-900 dark:text-white">Activity & Deadlines</h2>
+          <p className="text-xs text-sage-500 dark:text-gray-400">Last 12 weeks activity</p>
         </div>
       </div>
 
@@ -142,13 +142,13 @@ export default function DeadlineHeatmap() {
             <input
               value={title}
               onChange={(e) => setTitle(e.target.value)}
-              className="flex-1 rounded-xl bg-black/40 text-white border border-white/10 px-3 py-2 text-xs outline-none focus:border-white/20"
+              className="flex-1 rounded-xl bg-white text-sage-900 placeholder:text-sage-500 border border-gray-200 dark:border-white/10 px-3 py-2 text-xs outline-none focus:border-sage-300 dark:bg-black/40 dark:text-white dark:placeholder:text-gray-400 dark:focus:border-white/20"
               placeholder="Assignment / exam title"
             />
             <input
               value={subject}
               onChange={(e) => setSubject(e.target.value)}
-              className="flex-1 rounded-xl bg-black/40 text-white border border-white/10 px-3 py-2 text-xs outline-none focus:border-white/20"
+              className="flex-1 rounded-xl bg-white text-sage-900 placeholder:text-sage-500 border border-gray-200 dark:border-white/10 px-3 py-2 text-xs outline-none focus:border-sage-300 dark:bg-black/40 dark:text-white dark:placeholder:text-gray-400 dark:focus:border-white/20"
               placeholder="Subject"
             />
           </div>
@@ -157,12 +157,12 @@ export default function DeadlineHeatmap() {
               type="date"
               value={dueDate}
               onChange={(e) => setDueDate(e.target.value)}
-              className="rounded-xl bg-black/40 text-white border border-white/10 px-3 py-2 text-xs outline-none focus:border-white/20"
+              className="rounded-xl bg-white text-sage-900 border border-gray-200 dark:border-white/10 px-3 py-2 text-xs outline-none focus:border-sage-300 dark:bg-black/40 dark:text-white dark:focus:border-white/20"
             />
             <select
               value={priority}
               onChange={(e) => setPriority(e.target.value as 'low' | 'medium' | 'high')}
-              className="rounded-xl bg-black/40 text-white border border-white/10 px-3 py-2 text-xs outline-none focus:border-white/20"
+              className="rounded-xl bg-white text-sage-900 border border-gray-200 dark:border-white/10 px-3 py-2 text-xs outline-none focus:border-sage-300 dark:bg-black/40 dark:text-white dark:focus:border-white/20"
             >
               <option value="low">Low priority</option>
               <option value="medium">Medium priority</option>
@@ -182,14 +182,14 @@ export default function DeadlineHeatmap() {
       </div>
 
       {message && (
-        <p className="mb-4 text-xs text-gray-300 bg-white/5 rounded-xl px-3 py-2">
+        <p className="mb-4 text-xs text-sage-600 dark:text-gray-300 bg-gray-50 dark:bg-white/5 rounded-xl px-3 py-2">
           {message}
         </p>
       )}
 
       <div className="mb-6">
         <div className="flex gap-1 mb-2">
-          <div className="text-xs text-gray-400 w-8">Mon</div>
+          <div className="text-xs text-sage-500 dark:text-gray-400 w-8">Mon</div>
           <div className="flex-1 grid grid-cols-12 gap-1">
             {Array.from({ length: weeks }).map((_, weekIndex) => (
               <div key={weekIndex} className="grid grid-rows-7 gap-1">
@@ -203,7 +203,7 @@ export default function DeadlineHeatmap() {
                       animate={{ scale: 1, opacity: 1 }}
                       transition={{ delay: dataIndex * 0.002 }}
                       whileHover={{ scale: 1.5, zIndex: 10 }}
-                      className={`w-3 h-3 rounded-sm ${getColorIntensity(data?.count || 0)} border border-white/10 cursor-pointer transition-all`}
+                      className={`w-3 h-3 rounded-sm ${getColorIntensity(data?.count || 0)} border border-gray-200 dark:border-white/10 cursor-pointer transition-all`}
                       title={`${data?.date}: ${data?.count || 0} tasks`}
                     />
                   );
@@ -212,19 +212,19 @@ export default function DeadlineHeatmap() {
             ))}
           </div>
         </div>
-        <div className="flex items-center gap-2 text-xs text-gray-400 mt-2">
+        <div className="flex items-center gap-2 text-xs text-sage-500 dark:text-gray-400 mt-2">
           <span>Less</span>
           <div className="flex gap-1">
             {[0, 1, 2, 3, 4].map((level) => (
-              <div key={level} className={`w-3 h-3 rounded-sm ${getColorIntensity(level)} border border-white/10`} />
+              <div key={level} className={`w-3 h-3 rounded-sm ${getColorIntensity(level)} border border-gray-200 dark:border-white/10`} />
             ))}
           </div>
           <span>More</span>
         </div>
       </div>
 
-      <div className="pt-6 border-t border-white/10">
-        <h3 className="text-sm font-semibold text-white mb-3 flex items-center gap-2">
+      <div className="pt-6 border-t border-sage-200 dark:border-white/10">
+        <h3 className="text-sm font-semibold text-sage-900 dark:text-white mb-3 flex items-center gap-2">
           <AlertTriangle size={16} className="text-orange-400" />
           Upcoming Deadlines
         </h3>
@@ -235,9 +235,9 @@ export default function DeadlineHeatmap() {
         )}
         <div className="space-y-2">
           {isLoadingDeadlines ? (
-            <p className="text-xs text-gray-400">Loading deadlines...</p>
+            <p className="text-xs text-sage-500 dark:text-gray-400">Loading deadlines...</p>
           ) : deadlines.length === 0 ? (
-            <p className="text-xs text-gray-400">
+            <p className="text-xs text-sage-500 dark:text-gray-400">
               No upcoming deadlines yet. Add your first assignment above.
             </p>
           ) : (
@@ -253,11 +253,11 @@ export default function DeadlineHeatmap() {
                 <div className="flex items-center gap-3">
                   <div className={`w-2 h-2 rounded-full ${getPriorityDot(deadline.priority)}`} />
                   <div>
-                    <p className="text-sm font-medium text-white">{deadline.title}</p>
-                    <p className="text-xs text-gray-400">{deadline.subject}</p>
+                    <p className="text-sm font-medium text-sage-900 dark:text-white">{deadline.title}</p>
+                    <p className="text-xs text-sage-500 dark:text-gray-400">{deadline.subject}</p>
                   </div>
                 </div>
-                <div className="text-xs text-gray-400">
+                <div className="text-xs text-sage-500 dark:text-gray-400">
                   {new Date(deadline.dueDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
                 </div>
               </motion.div>

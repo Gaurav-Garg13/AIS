@@ -114,10 +114,10 @@ export default function Assignments() {
 
   const getStatusColor = (status: Status) => {
     switch (status) {
-      case 'todo': return 'text-gray-400';
+      case 'todo': return 'text-sage-500 dark:text-gray-400';
       case 'in_progress': return 'text-blue-400';
       case 'done': return 'text-green-400';
-      default: return 'text-gray-400';
+      default: return 'text-sage-500 dark:text-gray-400';
     }
   };
 
@@ -155,48 +155,48 @@ export default function Assignments() {
       >
         <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
           <div>
-            <h1 className="text-3xl font-bold text-white mb-2">Assignments</h1>
-            <p className="text-sm text-gray-400">
+            <h1 className="text-3xl font-bold text-sage-900 dark:text-white mb-2">Assignments</h1>
+            <p className="text-sm text-sage-500 dark:text-gray-400">
               Track and manage your tasks across all courses with smart filtering and sorting.
             </p>
           </div>
           
           {showStats && (
             <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-              <div className="bg-white/5 backdrop-blur-xl rounded-xl p-4 border border-white/10">
+              <div className="bg-white dark:bg-white/5 backdrop-blur-xl rounded-xl p-4 border border-gray-200 dark:border-white/10">
                 <div className="flex items-center gap-2 mb-1">
                   <Target className="w-4 h-4 text-blue-400" />
-                  <span className="text-xs text-gray-400">Total</span>
+                  <span className="text-xs text-sage-500 dark:text-gray-400">Total</span>
                 </div>
-                <p className="text-2xl font-bold text-white">{totalPoints}</p>
-                <p className="text-xs text-gray-400">points</p>
+                <p className="text-2xl font-bold text-sage-900 dark:text-white">{totalPoints}</p>
+                <p className="text-xs text-sage-500 dark:text-gray-400">points</p>
               </div>
               
-              <div className="bg-white/5 backdrop-blur-xl rounded-xl p-4 border border-white/10">
+              <div className="bg-white dark:bg-white/5 backdrop-blur-xl rounded-xl p-4 border border-gray-200 dark:border-white/10">
                 <div className="flex items-center gap-2 mb-1">
                   <CheckCircle2 className="w-4 h-4 text-green-400" />
-                  <span className="text-xs text-gray-400">Completed</span>
+                  <span className="text-xs text-sage-500 dark:text-gray-400">Completed</span>
                 </div>
                 <p className="text-2xl font-bold text-green-400">{completedPoints}</p>
-                <p className="text-xs text-gray-400">points</p>
+                <p className="text-xs text-sage-500 dark:text-gray-400">points</p>
               </div>
               
-              <div className="bg-white/5 backdrop-blur-xl rounded-xl p-4 border border-white/10">
+              <div className="bg-white dark:bg-white/5 backdrop-blur-xl rounded-xl p-4 border border-gray-200 dark:border-white/10">
                 <div className="flex items-center gap-2 mb-1">
                   <Clock className="w-4 h-4 text-yellow-400" />
-                  <span className="text-xs text-gray-400">In Progress</span>
+                  <span className="text-xs text-sage-500 dark:text-gray-400">In Progress</span>
                 </div>
                 <p className="text-2xl font-bold text-yellow-400">{inProgressPoints}</p>
-                <p className="text-xs text-gray-400">points</p>
+                <p className="text-xs text-sage-500 dark:text-gray-400">points</p>
               </div>
               
-              <div className="bg-white/5 backdrop-blur-xl rounded-xl p-4 border border-white/10">
+              <div className="bg-white dark:bg-white/5 backdrop-blur-xl rounded-xl p-4 border border-gray-200 dark:border-white/10">
                 <div className="flex items-center gap-2 mb-1">
                   <TrendingUp className="w-4 h-4 text-purple-400" />
-                  <span className="text-xs text-gray-400">Rate</span>
+                  <span className="text-xs text-sage-500 dark:text-gray-400">Rate</span>
                 </div>
                 <p className="text-2xl font-bold text-purple-400">{completionRate}%</p>
-                <p className="text-xs text-gray-400">complete</p>
+                <p className="text-xs text-sage-500 dark:text-gray-400">complete</p>
               </div>
             </div>
           )}
@@ -205,13 +205,13 @@ export default function Assignments() {
         {/* Search and Filters */}
         <div className="flex flex-col md:flex-row gap-4">
           <div className="relative flex-1">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-sage-500 dark:text-gray-400" />
             <input
               type="text"
               placeholder="Search assignments or courses..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full pl-10 pr-4 py-2 bg-white/10 border border-white/20 rounded-xl text-white placeholder-gray-400 focus:outline-none focus:border-white/30 transition-all"
+              className="w-full pl-10 pr-4 py-2 bg-white/10 border border-sage-300 dark:border-white/20 rounded-xl text-sage-900 dark:text-white placeholder-sage-500 dark:placeholder-gray-400 focus:outline-none focus:border-white/30 transition-all"
             />
           </div>
           
@@ -219,7 +219,7 @@ export default function Assignments() {
             <select
               value={filterStatus}
               onChange={(e) => setFilterStatus(e.target.value as Status | 'all')}
-              className="px-4 py-2 bg-white/10 border border-white/20 rounded-xl text-white focus:outline-none focus:border-white/30 transition-all"
+              className="px-4 py-2 bg-white/10 border border-sage-300 dark:border-white/20 rounded-xl text-sage-900 dark:text-white focus:outline-none focus:border-white/30 transition-all"
             >
               <option value="all">All Status</option>
               <option value="todo">To Do</option>
@@ -230,7 +230,7 @@ export default function Assignments() {
             <select
               value={sortBy}
               onChange={(e) => setSortBy(e.target.value as 'due' | 'points' | 'course')}
-              className="px-4 py-2 bg-white/10 border border-white/20 rounded-xl text-white focus:outline-none focus:border-white/30 transition-all"
+              className="px-4 py-2 bg-white/10 border border-sage-300 dark:border-white/20 rounded-xl text-sage-900 dark:text-white focus:outline-none focus:border-white/30 transition-all"
             >
               <option value="due">Sort by Due Date</option>
               <option value="points">Sort by Points</option>
@@ -253,19 +253,19 @@ export default function Assignments() {
               whileHover={{ y: -4, scale: 1.02 }}
               className="group relative"
             >
-              <div className={`relative ${getStatusBg(assignment.status)} backdrop-blur-xl rounded-2xl p-6 border border-white/10 hover:border-white/20 transition-all duration-300 overflow-hidden`}>
+              <div className={`relative ${getStatusBg(assignment.status)} backdrop-blur-xl rounded-2xl p-6 border border-gray-200 dark:border-white/10 hover:border-sage-300 dark:border-white/20 transition-all duration-300 overflow-hidden`}>
                 {/* Status indicator */}
                 <div className="absolute top-2 right-2">
                   {assignment.status === 'done' && <CheckCircle2 className="w-5 h-5 text-green-400" />}
                   {assignment.status === 'in_progress' && <Clock className="w-5 h-5 text-blue-400" />}
-                  {assignment.status === 'todo' && <Calendar className="w-5 h-5 text-gray-400" />}
+                  {assignment.status === 'todo' && <Calendar className="w-5 h-5 text-sage-500 dark:text-gray-400" />}
                 </div>
 
                 {/* Content */}
                 <div className="space-y-3">
                   <div>
-                    <h3 className="text-lg font-semibold text-white mb-1 pr-8">{assignment.title}</h3>
-                    <div className="flex items-center gap-2 text-sm text-gray-400">
+                    <h3 className="text-lg font-semibold text-sage-900 dark:text-white mb-1 pr-8">{assignment.title}</h3>
+                    <div className="flex items-center gap-2 text-sm text-sage-500 dark:text-gray-400">
                       <span className="px-2 py-1 bg-white/10 rounded-lg">{assignment.course}</span>
                       <span className="flex items-center gap-1">
                         <Calendar className="w-3 h-3" />
@@ -276,7 +276,7 @@ export default function Assignments() {
                   
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-2">
-                      <span className="text-2xl font-bold text-white">{assignment.points}</span>
+                      <span className="text-2xl font-bold text-sage-900 dark:text-white">{assignment.points}</span>
                       <span className={`text-sm ${getStatusColor(assignment.status)}`}>pts</span>
                     </div>
                     
@@ -286,7 +286,7 @@ export default function Assignments() {
                           whileHover={{ scale: 1.05 }}
                           whileTap={{ scale: 0.95 }}
                           onClick={() => move(assignment.id, 'in_progress')}
-                          className="px-3 py-1.5 bg-blue-500 text-white rounded-lg text-sm font-medium hover:bg-blue-600 transition-colors"
+                          className="px-3 py-1.5 bg-blue-500 text-sage-900 dark:text-white rounded-lg text-sm font-medium hover:bg-blue-600 transition-colors"
                         >
                           Start
                         </motion.button>
@@ -297,7 +297,7 @@ export default function Assignments() {
                           whileHover={{ scale: 1.05 }}
                           whileTap={{ scale: 0.95 }}
                           onClick={() => move(assignment.id, 'done')}
-                          className="px-3 py-1.5 bg-green-500 text-white rounded-lg text-sm font-medium hover:bg-green-600 transition-colors"
+                          className="px-3 py-1.5 bg-green-500 text-sage-900 dark:text-white rounded-lg text-sm font-medium hover:bg-green-600 transition-colors"
                         >
                           Complete
                         </motion.button>
@@ -308,7 +308,7 @@ export default function Assignments() {
                           whileHover={{ scale: 1.05 }}
                           whileTap={{ scale: 0.95 }}
                           onClick={() => move(assignment.id, 'todo')}
-                          className="px-3 py-1.5 bg-gray-500 text-white rounded-lg text-sm font-medium hover:bg-gray-600 transition-colors"
+                          className="px-3 py-1.5 bg-gray-500 text-sage-900 dark:text-white rounded-lg text-sm font-medium hover:bg-gray-600 transition-colors"
                         >
                           Reopen
                         </motion.button>
@@ -333,10 +333,10 @@ export default function Assignments() {
           animate={{ opacity: 1 }}
           className="text-center py-12"
         >
-          <div className="bg-white/5 backdrop-blur-xl rounded-2xl p-8 border border-white/10 max-w-md mx-auto">
-            <Search className="w-12 h-12 text-gray-400 mx-auto mb-4" />
-            <h3 className="text-xl font-semibold text-white mb-2">No assignments found</h3>
-            <p className="text-gray-400">
+          <div className="bg-white dark:bg-white/5 backdrop-blur-xl rounded-2xl p-8 border border-gray-200 dark:border-white/10 max-w-md mx-auto">
+            <Search className="w-12 h-12 text-sage-500 dark:text-gray-400 mx-auto mb-4" />
+            <h3 className="text-xl font-semibold text-sage-900 dark:text-white mb-2">No assignments found</h3>
+            <p className="text-sage-500 dark:text-gray-400">
               {searchTerm ? `No assignments match "${searchTerm}"` : 'No assignments match the current filter'}
             </p>
           </div>

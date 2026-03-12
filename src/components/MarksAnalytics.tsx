@@ -10,9 +10,9 @@ export default function MarksAnalytics() {
   const CustomTooltip = ({ active, payload }: any) => {
     if (active && payload && payload.length) {
       return (
-        <div className="bg-gray-900/95 backdrop-blur-sm border border-white/20 rounded-lg p-3">
-          <p className="text-gray-400 text-xs">{payload[0].payload.month}</p>
-          <p className="text-white font-bold">GPA: {payload[0].value.toFixed(2)}</p>
+        <div className="bg-gray-900/95 backdrop-blur-sm border border-gray-200 dark:border-white/20 rounded-lg p-3">
+          <p className="text-sage-500 dark:text-gray-400 text-xs">{payload[0].payload.month}</p>
+          <p className="text-sage-900 dark:text-white font-bold">GPA: {payload[0].value.toFixed(2)}</p>
           {showPrediction && payload[1] && (
             <p className="text-purple-400 text-sm">Predicted: {payload[1].value.toFixed(2)}</p>
           )}
@@ -27,16 +27,16 @@ export default function MarksAnalytics() {
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.5, delay: 0.1 }}
-      className="bg-white/5 backdrop-blur-xl rounded-2xl p-6 border border-white/10 hover:border-white/20 transition-all"
+      className="bg-white dark:bg-white/5 backdrop-blur-xl rounded-2xl p-6 border border-gray-200 dark:border-white/10 hover:border-sage-300 dark:hover:border-white/20 transition-all"
     >
       <div className="flex items-center justify-between mb-6">
         <div className="flex items-center gap-3">
           <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-blue-500 to-cyan-400 flex items-center justify-center">
-            <TrendingUp size={20} className="text-white" />
+            <TrendingUp size={20} className="text-sage-900 dark:text-white" />
           </div>
           <div>
-            <h2 className="text-xl font-bold text-white">Marks Analytics</h2>
-            <p className="text-xs text-gray-400">Performance trends over time</p>
+            <h2 className="text-xl font-bold text-sage-900 dark:text-white">Marks Analytics</h2>
+            <p className="text-xs text-sage-500 dark:text-gray-400">Performance trends over time</p>
           </div>
         </div>
 
@@ -46,8 +46,8 @@ export default function MarksAnalytics() {
           onClick={() => setShowPrediction(!showPrediction)}
           className={`flex items-center gap-2 px-4 py-2 rounded-lg font-medium text-sm transition-all ${
             showPrediction
-              ? 'bg-gradient-to-r from-purple-500 to-pink-500 text-white shadow-lg shadow-purple-500/30'
-              : 'bg-white/10 text-gray-300 hover:bg-white/20'
+              ? 'bg-gradient-to-r from-purple-500 to-pink-500 text-sage-900 dark:text-white shadow-lg shadow-purple-500/30'
+              : 'bg-white dark:bg-white/10 text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-white/20'
           }`}
         >
           <Sparkles size={16} />
@@ -95,17 +95,17 @@ export default function MarksAnalytics() {
         </ResponsiveContainer>
       </div>
 
-      <div className="grid grid-cols-3 gap-4 mt-6 pt-6 border-t border-white/10">
+      <div className="grid grid-cols-3 gap-4 mt-6 pt-6 border-t border-sage-200 dark:border-white/10">
         <div>
-          <p className="text-gray-400 text-xs">Current GPA</p>
-          <p className="text-2xl font-bold text-white mt-1">3.8</p>
+          <p className="text-sage-500 dark:text-gray-400 text-xs">Current GPA</p>
+          <p className="text-2xl font-bold text-sage-900 dark:text-white mt-1">3.8</p>
         </div>
         <div>
-          <p className="text-gray-400 text-xs">Improvement</p>
+          <p className="text-sage-500 dark:text-gray-400 text-xs">Improvement</p>
           <p className="text-2xl font-bold text-green-400 mt-1">+0.6</p>
         </div>
         <div>
-          <p className="text-gray-400 text-xs">Target GPA</p>
+          <p className="text-sage-500 dark:text-gray-400 text-xs">Target GPA</p>
           <p className="text-2xl font-bold text-purple-400 mt-1">4.0</p>
         </div>
       </div>

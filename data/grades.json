@@ -39,5 +39,12 @@
     "code": "TEST101",
     "credits": 3,
     "grade": "A"
+  },
+  {
+    "course": "BEE",
+    "code": "CS202",
+    "credits": 5,
+    "grade": "A+",
+    "points": 50
   }
 ]

@@ -24,7 +24,7 @@ export default function Sidebar({ isCollapsed, setIsCollapsed }: SidebarProps) {
     <motion.div
       initial={{ width: 240 }}
       animate={{ width: isCollapsed ? 80 : 240 }}
-      className="h-screen bg-[#0B0B0B] border-r border-gray-800 flex flex-col relative"
+      className="h-screen bg-sage-100 dark:bg-[#0B0B0B] border-r border-sage-200 dark:border-gray-800 flex flex-col relative transition-colors duration-300"
     >
       <div className="p-6 flex items-center justify-between gap-2">
         <motion.div
@@ -34,7 +34,7 @@ export default function Sidebar({ isCollapsed, setIsCollapsed }: SidebarProps) {
           {!isCollapsed && (
             <>
               <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-blue-500 to-purple-600" />
-              <span className="font-bold text-white text-lg">StudyFlow</span>
+              <span className="font-bold text-sage-900 dark:text-white text-lg transition-colors duration-300">StudyFlow</span>
             </>
           )}
         </motion.div>
@@ -42,7 +42,7 @@ export default function Sidebar({ isCollapsed, setIsCollapsed }: SidebarProps) {
           <button
             type="button"
             onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
-            className="text-[11px] px-2 py-1 rounded-full border border-white/20 text-gray-200 hover:bg-white/10"
+            className="text-[11px] px-2 py-1 rounded-full border border-sage-300 dark:border-white/20 text-sage-700 dark:text-gray-200 hover:bg-sage-200 dark:hover:bg-white/10 transition-colors duration-300"
           >
             {theme === 'dark' ? 'Light' : 'Dark'}
           </button>
@@ -56,14 +56,16 @@ export default function Sidebar({ isCollapsed, setIsCollapsed }: SidebarProps) {
             to={item.to}
             end={item.to === '/'}
             className={({ isActive }) =>
-              `w-full flex items-center gap-3 px-3 py-3 rounded-lg mb-2 transition-colors ${
-                isActive ? 'bg-blue-500/10 text-blue-400' : 'text-gray-400 hover:bg-white/5 hover:text-white'
+              `w-full flex items-center gap-3 px-3 py-3 rounded-lg mb-2 transition-colors duration-300 ${
+                isActive 
+                  ? 'bg-blue-500/10 text-blue-700 dark:text-blue-400' 
+                  : 'text-sage-800 dark:text-gray-400 hover:bg-sage-200 dark:hover:bg-white/5 hover:text-sage-900 dark:hover:text-white'
               }`
             }
           >
             <item.icon size={20} />
             {!isCollapsed && (
-              <span className="text-sm font-medium">
+              <span className="text-sm font-medium transition-colors duration-300">
                 {item.label}
               </span>
             )}
@@ -73,18 +75,18 @@ export default function Sidebar({ isCollapsed, setIsCollapsed }: SidebarProps) {
 
       <button
         onClick={() => setIsCollapsed(!isCollapsed)}
-        className="absolute -right-3 top-20 w-6 h-6 bg-gray-800 rounded-full flex items-center justify-center text-gray-400 hover:text-white hover:bg-gray-700 transition-colors"
+        className="absolute -right-3 top-20 w-6 h-6 bg-sage-300 dark:bg-gray-800 rounded-full flex items-center justify-center text-sage-700 dark:text-gray-400 hover:text-sage-900 dark:hover:text-white hover:bg-sage-400 dark:hover:bg-gray-700 transition-colors duration-300"
       >
         {isCollapsed ? <ChevronRight size={14} /> : <ChevronLeft size={14} />}
       </button>
 
-      <div className="p-3 border-t border-gray-800">
-        <div className="w-full flex items-center gap-3 px-3 py-3 rounded-lg hover:bg-white/5 transition-colors">
+      <div className="p-3 border-t border-sage-200 dark:border-gray-800">
+        <div className="w-full flex items-center gap-3 px-3 py-3 rounded-lg hover:bg-sage-200 dark:hover:bg-white/5 transition-colors duration-300">
           <div className="w-8 h-8 rounded-full bg-gradient-to-br from-blue-400 to-purple-500" />
           {!isCollapsed && (
             <div className="flex-1 min-w-0">
-              <p className="text-sm font-medium text-white truncate">{profile.name}</p>
-              <p className="text-xs text-gray-400 truncate">{profile.email}</p>
+              <p className="text-sm font-medium text-sage-900 dark:text-white truncate transition-colors duration-300">{profile.name}</p>
+              <p className="text-xs text-sage-600 dark:text-gray-400 truncate transition-colors duration-300">{profile.email}</p>
             </div>
           )}
         </div>
