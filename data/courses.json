@@ -55,5 +55,22 @@
     "intensity": "Core",
     "createdAt": "2026-03-12T06:39:39.918Z",
     "updatedAt": "2026-03-12T06:39:39.918Z"
+  },
+  {
+    "id": "cs214-1773322574572",
+    "code": "CS214",
+    "title": "FEE",
+    "instructor": "Mr. Amitabh",
+    "credits": 5,
+    "progress": 100,
+    "points": 540,
+    "syllabus": [
+      "WEB"
+    ],
+    "description": "Front end",
+    "schedule": "Mon",
+    "intensity": "Core",
+    "createdAt": "2026-03-12T13:36:14.571Z",
+    "updatedAt": "2026-03-12T13:36:14.571Z"
   }
 ]

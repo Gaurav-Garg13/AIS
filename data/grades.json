@@ -3,7 +3,7 @@
     "course": "Data Structures & Algorithms",
     "code": "CS201",
     "credits": 4,
-    "grade": "B",
+    "grade": "A+",
     "points": 40
   },
   {
@@ -24,7 +24,7 @@
     "course": "Linux Administration",
     "code": "CS202",
     "credits": 5,
-    "grade": "A",
+    "grade": "A+",
     "points": 40
   },
   {
@@ -38,7 +38,7 @@
     "course": "Test Course",
     "code": "TEST101",
     "credits": 3,
-    "grade": "A"
+    "grade": "A+"
   },
   {
     "course": "BEE",
