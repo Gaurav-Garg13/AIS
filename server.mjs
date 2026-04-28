@@ -1,728 +1,585 @@
 import express from 'express';
 import cors from 'cors';
-import fs from 'fs/promises';
 import path from 'path';
 import { fileURLToPath } from 'url';
+import mongoose from 'mongoose';
+import jwt from 'jsonwebtoken';
+import bcrypt from 'bcryptjs';
+import dotenv from 'dotenv';
+import { OAuth2Client } from 'google-auth-library';
+import { GoogleGenAI } from '@google/genai';
+
+import {
+  User, Profile, Course, Assignment, Grade, Schedule, Stat, Session, Deadline, Attendance
+} from './models.mjs';
+
+dotenv.config();
 
 const app = express();
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 const PORT = process.env.PORT || 3000;
+const JWT_SECRET = process.env.JWT_SECRET || 'fallback_secret_for_development_only';
+const GOOGLE_CLIENT_ID = process.env.GOOGLE_CLIENT_ID || 'dummy_client_id.apps.googleusercontent.com';
+const MONGODB_URI = process.env.MONGODB_URI || 'mongodb://localhost:27017/aerocore';
+
+const googleClient = new OAuth2Client(GOOGLE_CLIENT_ID);
 
 app.use(cors());
-app.use(express.json());
+app.use(express.json({ limit: '5mb' }));
 
-const statsPath = path.join(__dirname, 'data', 'stats.json');
-const sessionsPath = path.join(__dirname, 'data', 'sessions.json');
-const attendancePath = path.join(__dirname, 'data', 'attendance.json');
-const deadlinesPath = path.join(__dirname, 'data', 'deadlines.json');
-const profilePath = path.join(__dirname, 'data', 'profile.json');
-const coursesPath = path.join(__dirname, 'data', 'courses.json');
-const assignmentsPath = path.join(__dirname, 'data', 'assignments.json');
-const gradesPath = path.join(__dirname, 'data', 'grades.json');
-const schedulePath = path.join(__dirname, 'data', 'schedule.json');
-const courseStreamClients = new Set();
+// MongoDB Connection
+mongoose.connect(MONGODB_URI)
+  .then(() => console.log('Connected to MongoDB'))
+  .catch(err => console.error('Failed to connect to MongoDB:', err));
 
-async function readJsonArray(filePath) {
-  const fileContents = await fs.readFile(filePath, 'utf-8');
-  const parsed = JSON.parse(fileContents);
-  if (!Array.isArray(parsed)) {
-    throw new Error(`${path.basename(filePath)} must contain an array`);
+// Auth Middleware
+const authenticateToken = (req, res, next) => {
+  const authHeader = req.headers['authorization'];
+  let token = authHeader && authHeader.split(' ')[1];
+  
+  if (!token && req.query.token) {
+    token = req.query.token;
   }
-  return parsed;
-}
+  
+  if (token == null) return res.status(401).json({ error: 'Unauthorized' });
 
-async function writeJsonArray(filePath, value) {
-  await fs.writeFile(filePath, JSON.stringify(value, null, 2) + '\n', 'utf-8');
-}
+  jwt.verify(token, process.env.JWT_SECRET || 'fallback_secret_for_development_only', (err, user) => {
+    if (err) return res.status(403).json({ error: 'Forbidden' });
+    req.user = user;
+    next();
+  });
+};
 
-async function readStatsFile() {
-  return readJsonArray(statsPath);
-}
+// --- AUTH ROUTES ---
 
-async function writeStatsFile(stats) {
-  await writeJsonArray(statsPath, stats);
-}
-
-function normalizeStringList(value) {
-  if (!Array.isArray(value)) return [];
-  return value
-    .map((item) => (typeof item === 'string' ? item.trim() : ''))
-    .filter(Boolean);
-}
-
-function sanitizeCoursePayload(input, options = {}) {
-  const { partial = false } = options;
-  const output = {};
-
-  const requireString = (key) => {
-    if (input[key] == null) {
-      if (!partial) {
-        throw new Error(`${key} is required`);
-      }
-      return;
-    }
-    if (typeof input[key] !== 'string' || !input[key].trim()) {
-      throw new Error(`${key} must be a non-empty string`);
-    }
-    output[key] = input[key].trim();
-  };
-
-  const requireNumber = (key, { min = 0, max = Number.POSITIVE_INFINITY } = {}) => {
-    if (input[key] == null) {
-      if (!partial) {
-        throw new Error(`${key} is required`);
-      }
-      return;
-    }
-    const numericValue = Number(input[key]);
-    if (!Number.isFinite(numericValue) || numericValue < min || numericValue > max) {
-      throw new Error(`${key} must be a number between ${min} and ${max}`);
-    }
-    output[key] = numericValue;
-  };
-
-  requireString('code');
-  requireString('title');
-  requireString('instructor');
-  requireNumber('credits', { min: 1, max: 12 });
-  requireNumber('progress', { min: 0, max: 100 });
-  requireNumber('points', { min: 0 });
-
-  if (input.syllabus != null || !partial) {
-    const syllabus = normalizeStringList(input.syllabus);
-    if (!syllabus.length) {
-      throw new Error('syllabus must contain at least one topic');
-    }
-    output.syllabus = syllabus;
-  }
-
-  if (input.description != null) {
-    if (typeof input.description !== 'string' || !input.description.trim()) {
-      throw new Error('description must be a non-empty string');
-    }
-    output.description = input.description.trim();
-  }
-
-  if (input.schedule != null) {
-    if (typeof input.schedule !== 'string' || !input.schedule.trim()) {
-      throw new Error('schedule must be a non-empty string');
-    }
-    output.schedule = input.schedule.trim();
-  }
-
-  if (input.intensity != null) {
-    const allowedIntensity = ['Core', 'Lab', 'Elective'];
-    if (!allowedIntensity.includes(input.intensity)) {
-      throw new Error(`intensity must be one of ${allowedIntensity.join(', ')}`);
-    }
-    output.intensity = input.intensity;
-  }
-
-  if (input.accent != null) {
-    if (typeof input.accent !== 'string' || !/^#[\da-fA-F]{6}$/.test(input.accent.trim())) {
-      throw new Error('accent must be a hex color like #38bdf8');
-    }
-    output.accent = input.accent.trim();
-  }
-
-  return output;
-}
-
-async function broadcastCoursesSnapshot() {
-  if (!courseStreamClients.size) return;
-  const courses = await readJsonArray(coursesPath);
-  const payload = `data: ${JSON.stringify({ type: 'snapshot', courses })}\n\n`;
-  for (const client of courseStreamClients) {
-    client.write(payload);
-  }
-}
-
-app.get('/api/stats', async (req, res) => {
+app.post('/api/auth/register', async (req, res) => {
   try {
-    const stats = await readStatsFile();
-    res.json(stats);
+    const { email, password, name } = req.body;
+    if (!email || !password) return res.status(400).json({ error: 'Email and password required' });
+    
+    const existingUser = await User.findOne({ email });
+    if (existingUser) return res.status(409).json({ error: 'Email already in use' });
+
+    const hashedPassword = await bcrypt.hash(password, 10);
+    const user = new User({ email, password: hashedPassword, name });
+    await user.save();
+
+    const token = jwt.sign({ userId: user._id, email: user.email }, JWT_SECRET, { expiresIn: '7d' });
+    res.status(201).json({ token, user: { id: user._id, email: user.email, name: user.name } });
   } catch (error) {
-    console.error('Error reading stats.json:', error);
-    res.status(500).json({ error: 'Failed to load stats data' });
+    res.status(500).json({ error: 'Failed to register' });
   }
 });
 
-app.get('/api/courses', async (req, res) => {
+app.post('/api/auth/login', async (req, res) => {
   try {
-    const courses = await readJsonArray(coursesPath);
+    const { email, password } = req.body;
+    const user = await User.findOne({ email });
+    if (!user || !user.password) return res.status(401).json({ error: 'Invalid credentials' });
+
+    const validPassword = await bcrypt.compare(password, user.password);
+    if (!validPassword) return res.status(401).json({ error: 'Invalid credentials' });
+
+    const token = jwt.sign({ userId: user._id, email: user.email }, JWT_SECRET, { expiresIn: '7d' });
+    res.json({ token, user: { id: user._id, email: user.email, name: user.name } });
+  } catch (error) {
+    res.status(500).json({ error: 'Failed to login' });
+  }
+});
+
+app.post('/api/auth/google', async (req, res) => {
+  try {
+    const { credential } = req.body;
+    console.log('--- ATTEMPTING GOOGLE VERIFICATION (Legacy) ---');
+    console.log('Credential Length:', credential.length);
+    console.log('Target Client ID:', GOOGLE_CLIENT_ID);
+    
+    const ticket = await googleClient.verifyIdToken({
+      idToken: credential,
+      audience: GOOGLE_CLIENT_ID,
+    });
+    const payload = ticket.getPayload();
+    const { email, name, sub: googleId, picture } = payload;
+
+    let user = await User.findOne({ email });
+    if (!user) {
+      user = new User({ email, name, googleId });
+      await user.save();
+    } else if (!user.googleId) {
+      user.googleId = googleId;
+      await user.save();
+    }
+
+    // Initialize profile if not exists
+    let profile = await Profile.findOne({ userId: user._id });
+    if (!profile) {
+      profile = new Profile({ userId: user._id, name, email, avatarUrl: picture });
+      await profile.save();
+    } else if (!profile.avatarUrl) {
+      profile.avatarUrl = picture;
+      await profile.save();
+    }
+
+    const token = jwt.sign({ userId: user._id, email: user.email }, JWT_SECRET, { expiresIn: '7d' });
+    res.json({ token, user: { id: user._id, email: user.email, name: user.name } });
+  } catch (error) {
+    console.error('============== GOOGLE OAUTH ERROR (Legacy Server) ==============');
+    console.error(error);
+    res.status(500).json({ 
+      error: 'Failed to authenticate with Google', 
+      details: error.message || 'Unknown error occurred in legacy backend verification'
+    });
+  }
+});
+
+// --- API ROUTES (Protected) ---
+
+app.get('/api/gamification/status', authenticateToken, async (req, res) => {
+  try {
+    let profile = await Profile.findOne({ userId: req.user.userId });
+    if (!profile) return res.status(404).json({ error: 'Profile not found' });
+    
+    // Check if streak needs reset
+    const now = new Date();
+    const lastActive = new Date(profile.lastActiveDate);
+    const diffTime = Math.abs(now - lastActive);
+    const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
+    
+    if (diffDays > 1) {
+      profile.currentStreak = 0; // Streak broken
+    } else if (diffDays === 1) {
+      profile.currentStreak += 1; // Streak continued
+    }
+    
+    profile.lastActiveDate = now.toISOString();
+    await profile.save();
+    
+    res.json({
+      xp: profile.xp || 0,
+      level: profile.level || 1,
+      currentStreak: profile.currentStreak || 0
+    });
+  } catch (error) {
+    res.status(500).json({ error: 'Failed to load gamification status' });
+  }
+});
+
+app.post('/api/gamification/reward', authenticateToken, async (req, res) => {
+  try {
+    const { amount, reason } = req.body;
+    const xpAmount = Number(amount) || 10;
+    
+    let profile = await Profile.findOne({ userId: req.user.userId });
+    if (!profile) return res.status(404).json({ error: 'Profile not found' });
+    
+    profile.xp = (profile.xp || 0) + xpAmount;
+    
+    // Level up logic (every 100 XP is a level)
+    const newLevel = Math.floor(profile.xp / 100) + 1;
+    const leveledUp = newLevel > (profile.level || 1);
+    profile.level = newLevel;
+    
+    await profile.save();
+    res.json({ xp: profile.xp, level: profile.level, leveledUp, message: `Awarded ${xpAmount} XP for ${reason}` });
+  } catch (error) {
+    res.status(500).json({ error: 'Failed to award XP' });
+  }
+});
+
+app.get('/api/stats', authenticateToken, async (req, res) => {
+  try {
+    const stats = await Stat.find({ userId: req.user.userId });
+    res.json(stats);
+  } catch (error) {
+    res.status(500).json({ error: 'Failed to load stats' });
+  }
+});
+
+app.patch('/api/stats/:label', authenticateToken, async (req, res) => {
+  try {
+    const label = decodeURIComponent(req.params.label);
+    const { value, change } = req.body;
+    const stat = await Stat.findOneAndUpdate(
+      { userId: req.user.userId, label },
+      { value, change },
+      { new: true, upsert: true }
+    );
+    res.json(stat);
+  } catch (error) {
+    res.status(500).json({ error: 'Failed to update stats' });
+  }
+});
+
+app.get('/api/courses', authenticateToken, async (req, res) => {
+  try {
+    const courses = await Course.find({ userId: req.user.userId });
     res.json(courses);
   } catch (error) {
-    console.error('Error reading courses.json:', error);
     res.status(500).json({ error: 'Failed to load courses' });
   }
 });
 
-app.get('/api/courses/stream', async (req, res) => {
-  res.setHeader('Content-Type', 'text/event-stream');
-  res.setHeader('Cache-Control', 'no-cache');
-  res.setHeader('Connection', 'keep-alive');
-  res.flushHeaders?.();
-
-  courseStreamClients.add(res);
-
+app.post('/api/courses', authenticateToken, async (req, res) => {
   try {
-    const courses = await readJsonArray(coursesPath);
-    res.write(`data: ${JSON.stringify({ type: 'snapshot', courses })}\n\n`);
-  } catch (error) {
-    res.write(`data: ${JSON.stringify({ type: 'error', message: 'Failed to read courses' })}\n\n`);
-  }
+    const payload = req.body;
+    const existing = await Course.findOne({ userId: req.user.userId, code: { $regex: new RegExp(`^${payload.code}$`, 'i') } });
+    if (existing) return res.status(409).json({ error: `Course code already exists` });
 
-  req.on('close', () => {
-    courseStreamClients.delete(res);
-    res.end();
-  });
-});
-
-app.post('/api/courses', async (req, res) => {
-  try {
-    const payload = sanitizeCoursePayload(req.body ?? {});
-    const courses = await readJsonArray(coursesPath);
-
-    if (courses.some((course) => String(course.code).toLowerCase() === payload.code.toLowerCase())) {
-      return res.status(409).json({ error: `Course code "${payload.code}" already exists` });
-    }
-
-    const timestamp = new Date().toISOString();
-    const newCourse = {
-      id: `${payload.code.toLowerCase().replace(/[^a-z0-9]+/g, '-')}-${Date.now()}`,
+    const newCourse = new Course({
       ...payload,
-      createdAt: timestamp,
-      updatedAt: timestamp,
-    };
-
-    courses.push(newCourse);
-    await writeJsonArray(coursesPath, courses);
-    await broadcastCoursesSnapshot();
+      id: `${payload.code.toLowerCase().replace(/[^a-z0-9]+/g, '-')}-${Date.now()}`,
+      userId: req.user.userId,
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString()
+    });
+    await newCourse.save();
     res.status(201).json(newCourse);
   } catch (error) {
-    if (error instanceof Error) {
-      return res.status(400).json({ error: error.message });
-    }
-    console.error('Error writing courses.json:', error);
     res.status(500).json({ error: 'Failed to create course' });
   }
 });
 
-app.patch('/api/courses/:id', async (req, res) => {
+app.patch('/api/courses/:id', authenticateToken, async (req, res) => {
   try {
-    const id = req.params.id;
-    const payload = sanitizeCoursePayload(req.body ?? {}, { partial: true });
-    const courses = await readJsonArray(coursesPath);
-    const index = courses.findIndex((course) => String(course.id) === String(id));
-
-    if (index === -1) {
-      return res.status(404).json({ error: 'Course not found' });
-    }
-
-    if (
-      payload.code &&
-      courses.some(
-        (course, courseIndex) =>
-          courseIndex !== index &&
-          String(course.code).toLowerCase() === payload.code.toLowerCase()
-      )
-    ) {
-      return res.status(409).json({ error: `Course code "${payload.code}" already exists` });
-    }
-
-    const updatedCourse = {
-      ...courses[index],
-      ...payload,
-      updatedAt: new Date().toISOString(),
-    };
-
-    courses[index] = updatedCourse;
-    await writeJsonArray(coursesPath, courses);
-    await broadcastCoursesSnapshot();
-    res.json(updatedCourse);
+    const payload = req.body;
+    const course = await Course.findOneAndUpdate(
+      { userId: req.user.userId, id: req.params.id },
+      { ...payload, updatedAt: new Date().toISOString() },
+      { new: true }
+    );
+    if (!course) return res.status(404).json({ error: 'Course not found' });
+    res.json(course);
   } catch (error) {
-    if (error instanceof Error) {
-      return res.status(400).json({ error: error.message });
-    }
-    console.error('Error updating courses.json:', error);
     res.status(500).json({ error: 'Failed to update course' });
   }
 });
 
-app.delete('/api/courses/:id', async (req, res) => {
+app.delete('/api/courses/:id', authenticateToken, async (req, res) => {
   try {
-    const id = req.params.id;
-    const courses = await readJsonArray(coursesPath);
-    const filtered = courses.filter((course) => String(course.id) !== String(id));
-
-    if (filtered.length === courses.length) {
-      return res.status(404).json({ error: 'Course not found' });
-    }
-
-    await writeJsonArray(coursesPath, filtered);
-    await broadcastCoursesSnapshot();
+    const result = await Course.findOneAndDelete({ userId: req.user.userId, id: req.params.id });
+    if (!result) return res.status(404).json({ error: 'Course not found' });
     res.status(204).send();
   } catch (error) {
-    console.error('Error deleting courses.json:', error);
     res.status(500).json({ error: 'Failed to delete course' });
   }
 });
 
-app.get('/api/assignments', async (req, res) => {
+app.get('/api/assignments', authenticateToken, async (req, res) => {
   try {
-    const assignments = await readJsonArray(assignmentsPath);
+    const assignments = await Assignment.find({ userId: req.user.userId });
     res.json(assignments);
   } catch (error) {
-    console.error('Error reading assignments.json:', error);
     res.status(500).json({ error: 'Failed to load assignments' });
   }
 });
 
-app.patch('/api/assignments/:id', async (req, res) => {
+app.patch('/api/assignments/:id', authenticateToken, async (req, res) => {
   try {
-    const id = req.params.id;
-    const { status } = req.body ?? {};
-    const allowed = ['todo', 'in_progress', 'done'];
-    if (!allowed.includes(status)) {
-      return res.status(400).json({ error: 'Invalid status' });
-    }
-    const assignments = await readJsonArray(assignmentsPath);
-    const idx = assignments.findIndex((a) => a && a.id && String(a.id) === String(id));
-    if (idx === -1) {
-      return res.status(404).json({ error: 'Assignment not found' });
-    }
-    assignments[idx] = { ...assignments[idx], status };
-    await writeJsonArray(assignmentsPath, assignments);
-    res.json(assignments[idx]);
+    const { status } = req.body;
+    const assignment = await Assignment.findOneAndUpdate(
+      { userId: req.user.userId, id: req.params.id },
+      { status },
+      { new: true }
+    );
+    if (!assignment) return res.status(404).json({ error: 'Assignment not found' });
+    res.json(assignment);
   } catch (error) {
-    console.error('Error updating assignments.json:', error);
     res.status(500).json({ error: 'Failed to update assignment' });
   }
 });
 
-app.get('/api/grades', async (req, res) => {
+app.get('/api/grades', authenticateToken, async (req, res) => {
   try {
-    const grades = await readJsonArray(gradesPath);
+    const grades = await Grade.find({ userId: req.user.userId });
     res.json(grades);
   } catch (error) {
-    console.error('Error reading grades.json:', error);
     res.status(500).json({ error: 'Failed to load grades' });
   }
 });
 
-app.put('/api/grades', async (req, res) => {
+app.put('/api/grades', authenticateToken, async (req, res) => {
   try {
-    const gradesArray = req.body ?? [];
-    
-    if (!Array.isArray(gradesArray)) {
-      return res.status(400).json({ error: 'Request body must be an array of grades' });
-    }
-
-    // Validate each grade object
-    const allowedGrades = ['A+', 'A', 'A-', 'B+', 'B', 'B-', 'C', 'C-', 'D', 'F'];
-    
-    for (const grade of gradesArray) {
-      if (!grade || typeof grade !== 'object') {
-        return res.status(400).json({ error: 'Each grade must be an object' });
-      }
-      
-      if (typeof grade.course !== 'string' || !grade.course.trim()) {
-        return res.status(400).json({ error: 'Each grade must have a valid course name' });
-      }
-      
-      if (typeof grade.code !== 'string' || !grade.code.trim()) {
-        return res.status(400).json({ error: 'Each grade must have a valid course code' });
-      }
-      
-      if (!Number.isFinite(Number(grade.credits)) || Number(grade.credits) <= 0) {
-        return res.status(400).json({ error: 'Each grade must have valid credits > 0' });
-      }
-      
-      if (!allowedGrades.includes(grade.grade)) {
-        return res.status(400).json({ error: `Invalid grade: ${grade.grade}. Must be one of: ${allowedGrades.join(', ')}` });
-      }
-    }
-
-    // Sanitize and write the entire grades array
-    const sanitizedGrades = gradesArray.map(grade => ({
-      course: grade.course.trim(),
-      code: grade.code.trim(),
-      credits: Number(grade.credits),
-      grade: grade.grade,
-      ...(grade.points != null && Number.isFinite(Number(grade.points)) ? { points: Number(grade.points) } : {})
-    }));
-
-    await writeJsonArray(gradesPath, sanitizedGrades);
-    res.json(sanitizedGrades);
+    const gradesArray = req.body;
+    await Grade.deleteMany({ userId: req.user.userId });
+    const newGrades = gradesArray.map(g => ({ ...g, userId: req.user.userId }));
+    const saved = await Grade.insertMany(newGrades);
+    res.json(saved);
   } catch (error) {
-    console.error('Error updating grades.json:', error);
     res.status(500).json({ error: 'Failed to update grades' });
   }
 });
 
-app.post('/api/grades', async (req, res) => {
+app.post('/api/grades', authenticateToken, async (req, res) => {
   try {
-    const { course, code, credits, grade, points } = req.body ?? {};
-    const allowedGrades = ['A+', 'A', 'B+', 'B', 'C', 'D', 'F'];
-
-    if (typeof course !== 'string' || !course.trim()) {
-      return res.status(400).json({ error: 'course is required' });
-    }
-    if (typeof code !== 'string' || !code.trim()) {
-      return res.status(400).json({ error: 'code is required' });
-    }
-    if (!Number.isFinite(Number(credits)) || Number(credits) <= 0) {
-      return res.status(400).json({ error: 'credits must be a positive number' });
-    }
-    if (!allowedGrades.includes(grade)) {
-      return res.status(400).json({ error: 'Invalid grade value' });
-    }
-
-    const grades = await readJsonArray(gradesPath);
-    if (grades.some((g) => g && g.code === code)) {
-      return res.status(409).json({ error: `Grade row for code "${code}" already exists` });
-    }
-
-    const numericCredits = Number(credits);
-    const numericPoints =
-      points != null && Number.isFinite(Number(points)) ? Number(points) : undefined;
-
-    const newRow = {
-      course: course.trim(),
-      code: code.trim(),
-      credits: numericCredits,
-      grade,
-      ...(numericPoints != null ? { points: numericPoints } : {}),
-    };
-
-    grades.push(newRow);
-    await writeJsonArray(gradesPath, grades);
-    res.status(201).json(newRow);
+    const grade = new Grade({ ...req.body, userId: req.user.userId });
+    await grade.save();
+    res.status(201).json(grade);
   } catch (error) {
-    console.error('Error writing grades.json:', error);
-    res.status(500).json({ error: 'Failed to create grade row' });
+    res.status(500).json({ error: 'Failed to create grade' });
   }
 });
 
-app.patch('/api/grades/:code', async (req, res) => {
+app.patch('/api/grades/:code', authenticateToken, async (req, res) => {
   try {
     const code = decodeURIComponent(req.params.code);
-    const { course, grade, credits, points } = req.body ?? {};
-
-    const allowedGrades = ['A+', 'A', 'B+', 'B', 'C', 'D', 'F'];
-    if (grade != null && !allowedGrades.includes(grade)) {
-      return res.status(400).json({ error: 'Invalid grade value' });
-    }
-    if (credits != null && (!Number.isFinite(Number(credits)) || Number(credits) <= 0)) {
-      return res.status(400).json({ error: 'credits must be a positive number' });
-    }
-    if (course != null && (typeof course !== 'string' || !course.trim())) {
-      return res.status(400).json({ error: 'course must be a non-empty string' });
-    }
-
-    const grades = await readJsonArray(gradesPath);
-    const idx = grades.findIndex((g) => g && g.code === code);
-    if (idx === -1) {
-      return res.status(404).json({ error: `No grade row found for code "${code}"` });
-    }
-
-    const numericCredits = credits != null ? Number(credits) : undefined;
-    const numericPoints =
-      points != null && Number.isFinite(Number(points)) ? Number(points) : undefined;
-
-    const updated = {
-      ...grades[idx],
-      ...(course != null ? { course: course.trim() } : {}),
-      ...(grade != null ? { grade } : {}),
-      ...(numericCredits != null ? { credits: numericCredits } : {}),
-      ...(numericPoints != null ? { points: numericPoints } : {}),
-    };
-    grades[idx] = updated;
-    await writeJsonArray(gradesPath, grades);
-    res.json(updated);
+    const grade = await Grade.findOneAndUpdate(
+      { userId: req.user.userId, code },
+      req.body,
+      { new: true }
+    );
+    if (!grade) return res.status(404).json({ error: 'Grade not found' });
+    res.json(grade);
   } catch (error) {
-    console.error('Error updating grades.json:', error);
     res.status(500).json({ error: 'Failed to update grade' });
   }
 });
 
-app.get('/api/profile', async (req, res) => {
+app.get('/api/profile', authenticateToken, async (req, res) => {
   try {
-    const contents = await fs.readFile(profilePath, 'utf-8');
-    const parsed = JSON.parse(contents);
-    res.json(parsed);
+    let profile = await Profile.findOne({ userId: req.user.userId });
+    if (!profile) {
+      profile = { theme: 'dark' }; // Default if empty
+    }
+    res.json(profile);
   } catch (error) {
-    console.error('Error reading profile.json:', error);
     res.status(500).json({ error: 'Failed to load profile' });
   }
 });
 
-app.patch('/api/profile', async (req, res) => {
+app.patch('/api/profile', authenticateToken, async (req, res) => {
   try {
-    const {
-      name,
-      email,
-      phone,
-      avatarUrl,
-      theme,
-      notificationPrefs,
-    } = req.body ?? {};
-
-    const raw = await fs.readFile(profilePath, 'utf-8').catch(() => '{}');
-    const existing = JSON.parse(raw || '{}');
-
-    const merged = {
-      ...existing,
-      ...(typeof name === 'string' ? { name } : {}),
-      ...(typeof email === 'string' ? { email } : {}),
-      ...(typeof phone === 'string' ? { phone } : {}),
-      ...(typeof avatarUrl === 'string' || avatarUrl === null ? { avatarUrl } : {}),
-      ...(theme === 'light' || theme === 'dark' ? { theme } : {}),
-      ...(notificationPrefs && typeof notificationPrefs === 'object' ? { notificationPrefs } : {}),
-    };
-
-    await fs.writeFile(profilePath, JSON.stringify(merged, null, 2) + '\n', 'utf-8');
-    res.json(merged);
+    const profile = await Profile.findOneAndUpdate(
+      { userId: req.user.userId },
+      req.body,
+      { new: true, upsert: true }
+    );
+    res.json(profile);
   } catch (error) {
-    console.error('Error writing profile.json:', error);
     res.status(500).json({ error: 'Failed to update profile' });
   }
 });
 
-app.get('/api/sessions', async (req, res) => {
+app.get('/api/sessions', authenticateToken, async (req, res) => {
   try {
-    const sessions = await readJsonArray(sessionsPath);
+    const sessions = await Session.find({ userId: req.user.userId });
     res.json(sessions);
   } catch (error) {
-    console.error('Error reading sessions.json:', error);
     res.status(500).json({ error: 'Failed to load sessions' });
   }
 });
 
-app.post('/api/sessions', async (req, res) => {
+app.post('/api/sessions/start', authenticateToken, async (req, res) => {
   try {
-    const { subject, minutes } = req.body ?? {};
-    if (typeof subject !== 'string' || !subject.trim()) {
-      return res.status(400).json({ error: 'subject is required' });
-    }
-    const numericMinutes = Number(minutes);
-    if (!Number.isFinite(numericMinutes) || numericMinutes <= 0) {
-      return res.status(400).json({ error: 'minutes must be a positive number' });
-    }
-
-    const sessions = await readJsonArray(sessionsPath);
-    const newSession = {
-      id: Date.now(),
-      subject: subject.trim(),
-      minutes: numericMinutes,
-      createdAt: new Date().toISOString(),
-    };
-    sessions.push(newSession);
-    await writeJsonArray(sessionsPath, sessions);
-    res.status(201).json(newSession);
+    const { subject, durationMinutes } = req.body;
+    const now = new Date();
+    const endTime = new Date(now.getTime() + durationMinutes * 60000);
+    
+    const session = new Session({
+      id: Date.now().toString(),
+      userId: req.user.userId,
+      subject: subject || 'General',
+      status: 'active',
+      startTime: now.toISOString(),
+      endTime: endTime.toISOString(),
+      durationMinutes,
+      createdAt: now.toISOString()
+    });
+    
+    await session.save();
+    res.status(201).json(session);
   } catch (error) {
-    console.error('Error writing sessions.json:', error);
-    res.status(500).json({ error: 'Failed to save session' });
+    res.status(500).json({ error: 'Failed to start session' });
   }
 });
 
-app.get('/api/attendance', async (req, res) => {
+app.post('/api/sessions/end', authenticateToken, async (req, res) => {
   try {
-    const entries = await readJsonArray(attendancePath);
+    const { sessionId, completed } = req.body;
+    const session = await Session.findOneAndUpdate(
+      { id: sessionId, userId: req.user.userId },
+      { status: completed ? 'completed' : 'abandoned' },
+      { new: true }
+    );
+    
+    if (completed && session) {
+      const durationHours = session.durationMinutes / 60;
+      await Stat.findOneAndUpdate(
+        { userId: req.user.userId, label: 'Study Hours' },
+        { $inc: { value: Math.round(durationHours) } },
+        { upsert: true }
+      );
+    }
+    
+    res.json(session);
+  } catch (error) {
+    res.status(500).json({ error: 'Failed to end session' });
+  }
+});
+
+app.get('/api/attendance', authenticateToken, async (req, res) => {
+  try {
+    const entries = await Attendance.find({ userId: req.user.userId });
     res.json(entries);
   } catch (error) {
-    console.error('Error reading attendance.json:', error);
     res.status(500).json({ error: 'Failed to load attendance' });
   }
 });
 
-app.post('/api/attendance/mark', async (req, res) => {
+app.post('/api/attendance/mark', authenticateToken, async (req, res) => {
   try {
-    const { status } = req.body ?? {};
-    if (!['present', 'absent', 'late'].includes(status)) {
-      return res.status(400).json({ error: 'status must be present / absent / late' });
-    }
-
+    const { status, date, subject } = req.body;
+    if (!subject) return res.status(400).json({ error: 'Subject is required' });
     const now = new Date();
-    const year = now.getFullYear();
-    const month = String(now.getMonth() + 1).padStart(2, '0');
-    const day = String(now.getDate()).padStart(2, '0');
-    const dayKey = `${year}-${month}-${day}`; // strict local YYYY-MM-DD
-
-    const entries = await readJsonArray(attendancePath);
-    const existingIndex = entries.findIndex((e) => e && e.date === dayKey);
-    const entry = {
-      date: dayKey,
-      status,
-      markedAt: now.toISOString(),
-    };
-
-    if (existingIndex === -1) {
-      entries.push(entry);
-    } else {
-      entries[existingIndex] = entry;
-    }
-
-    await writeJsonArray(attendancePath, entries);
+    const dateStr = date || now.toISOString().split('T')[0];
+    const entry = await Attendance.findOneAndUpdate(
+      { userId: req.user.userId, date: dateStr, subject },
+      { status, markedAt: now.toISOString() },
+      { new: true, upsert: true }
+    );
     res.status(201).json(entry);
   } catch (error) {
-    console.error('Error writing attendance.json:', error);
     res.status(500).json({ error: 'Failed to mark attendance' });
   }
 });
 
-app.get('/api/deadlines', async (req, res) => {
+app.get('/api/deadlines', authenticateToken, async (req, res) => {
   try {
-    const deadlines = await readJsonArray(deadlinesPath);
+    const deadlines = await Deadline.find({ userId: req.user.userId });
     res.json(deadlines);
   } catch (error) {
-    console.error('Error reading deadlines.json:', error);
     res.status(500).json({ error: 'Failed to load deadlines' });
   }
 });
 
-app.post('/api/deadlines', async (req, res) => {
+app.post('/api/deadlines', authenticateToken, async (req, res) => {
   try {
-    const { title, subject, dueDate, priority } = req.body ?? {};
-    if (typeof title !== 'string' || !title.trim()) {
-      return res.status(400).json({ error: 'title is required' });
-    }
-    if (typeof subject !== 'string' || !subject.trim()) {
-      return res.status(400).json({ error: 'subject is required' });
-    }
-    const parsedDate = new Date(dueDate);
-    if (!dueDate || Number.isNaN(parsedDate.getTime())) {
-      return res.status(400).json({ error: 'dueDate must be a valid date string' });
-    }
-    const allowedPriorities = ['low', 'medium', 'high'];
-    const safePriority = allowedPriorities.includes(priority) ? priority : 'medium';
-
-    const deadlines = await readJsonArray(deadlinesPath);
-    const newDeadline = {
-      id: Date.now(),
-      title: title.trim(),
-      subject: subject.trim(),
-      dueDate: parsedDate.toISOString(),
-      priority: safePriority,
+    const deadline = new Deadline({
+      ...req.body,
+      id: Date.now().toString(),
       createdAt: new Date().toISOString(),
-    };
-    deadlines.push(newDeadline);
-    await writeJsonArray(deadlinesPath, deadlines);
-    res.status(201).json(newDeadline);
+      userId: req.user.userId
+    });
+    await deadline.save();
+    res.status(201).json(deadline);
   } catch (error) {
-    console.error('Error writing deadlines.json:', error);
     res.status(500).json({ error: 'Failed to save deadline' });
   }
 });
 
-app.patch('/api/stats/:label', async (req, res) => {
+app.get('/api/schedule', authenticateToken, async (req, res) => {
   try {
-    const label = decodeURIComponent(req.params.label);
-    const { value, change } = req.body ?? {};
-
-    if (typeof value !== 'string' || typeof change !== 'string') {
-      return res.status(400).json({ error: '`value` and `change` must be strings' });
-    }
-
-    const stats = await readStatsFile();
-    const idx = stats.findIndex((s) => s && typeof s === 'object' && s.label === label);
-    if (idx === -1) {
-      return res.status(404).json({ error: `No stat found for label "${label}"` });
-    }
-
-    stats[idx] = { ...stats[idx], value, change };
-    await writeStatsFile(stats);
-    res.json(stats[idx]);
-  } catch (error) {
-    console.error('Error updating stats.json:', error);
-    res.status(500).json({ error: 'Failed to update stats data' });
-  }
-});
-
-app.get('/api/schedule', async (req, res) => {
-  try {
-    const schedule = await readJsonArray(schedulePath);
-    // Sort by dayOfWeek then startTime for consistent ordering
-    schedule.sort((a, b) => {
-      const dayDiff = (a.dayOfWeek ?? 0) - (b.dayOfWeek ?? 0);
-      if (dayDiff !== 0) return dayDiff;
-      return String(a.startTime ?? '').localeCompare(String(b.startTime ?? ''));
-    });
+    const schedule = await Schedule.find({ userId: req.user.userId }).sort({ dayOfWeek: 1, startTime: 1 });
     res.json(schedule);
   } catch (error) {
-    console.error('Error reading schedule.json:', error);
     res.status(500).json({ error: 'Failed to load schedule' });
   }
 });
 
-app.post('/api/schedule', async (req, res) => {
+app.post('/api/schedule', authenticateToken, async (req, res) => {
   try {
-    const { title, subject, dayOfWeek, startTime, endTime, type, location } = req.body ?? {};
-
-    if (typeof title !== 'string' || !title.trim()) {
-      return res.status(400).json({ error: 'title is required' });
-    }
-    if (typeof subject !== 'string' || !subject.trim()) {
-      return res.status(400).json({ error: 'subject is required' });
-    }
-    const numericDay = Number(dayOfWeek);
-    if (!Number.isInteger(numericDay) || numericDay < 0 || numericDay > 6) {
-      return res.status(400).json({ error: 'dayOfWeek must be an integer 0-6 (Mon-Sun)' });
-    }
-    if (typeof startTime !== 'string' || !/^\d{2}:\d{2}$/.test(startTime)) {
-      return res.status(400).json({ error: 'startTime must be in HH:MM format' });
-    }
-    if (typeof endTime !== 'string' || !/^\d{2}:\d{2}$/.test(endTime)) {
-      return res.status(400).json({ error: 'endTime must be in HH:MM format' });
-    }
-    if (endTime <= startTime) {
-      return res.status(400).json({ error: 'endTime must be after startTime' });
-    }
-
-    const allowedTypes = ['class', 'study', 'exam', 'other'];
-    const safeType = allowedTypes.includes(type) ? type : 'study';
-
-    const schedule = await readJsonArray(schedulePath);
-    const newEntry = {
-      id: Date.now(),
-      title: title.trim(),
-      subject: subject.trim(),
-      dayOfWeek: numericDay,
-      startTime,
-      endTime,
-      type: safeType,
-      location: typeof location === 'string' ? location.trim() || undefined : undefined,
+    const schedule = new Schedule({
+      ...req.body,
+      id: Date.now().toString(),
       createdAt: new Date().toISOString(),
-    };
-    schedule.push(newEntry);
-    await writeJsonArray(schedulePath, schedule);
-    res.status(201).json(newEntry);
+      userId: req.user.userId
+    });
+    await schedule.save();
+    res.status(201).json(schedule);
   } catch (error) {
-    console.error('Error writing schedule.json:', error);
-    res.status(500).json({ error: 'Failed to save schedule entry' });
+    res.status(500).json({ error: 'Failed to save schedule' });
   }
 });
 
-app.delete('/api/schedule/:id', async (req, res) => {
+app.delete('/api/schedule/:id', authenticateToken, async (req, res) => {
   try {
-    const idParam = req.params.id;
-    const schedule = await readJsonArray(schedulePath);
-    const initialLength = schedule.length;
-    const filtered = schedule.filter((entry) => String(entry.id) !== String(idParam));
-
-    if (filtered.length === initialLength) {
-      return res.status(404).json({ error: 'Schedule entry not found' });
-    }
-
-    await writeJsonArray(schedulePath, filtered);
+    const result = await Schedule.findOneAndDelete({ userId: req.user.userId, id: req.params.id });
+    if (!result) return res.status(404).json({ error: 'Schedule entry not found' });
     res.status(204).send();
   } catch (error) {
-    console.error('Error deleting from schedule.json:', error);
     res.status(500).json({ error: 'Failed to delete schedule entry' });
   }
 });
 
+app.post('/api/chat', authenticateToken, async (req, res) => {
+  const { prompt } = req.body;
+  if (!prompt) return res.status(400).json({ error: 'Prompt is required' });
+
+  try {
+    const assignments = await Assignment.find({ userId: req.user.userId, status: { $ne: 'done' } });
+    const attendance = await Attendance.find({ userId: req.user.userId });
+    const profile = await Profile.findOne({ userId: req.user.userId });
+    
+    const contextStr = `
+      Student Profile: ${profile?.name || 'Student'} (Level ${profile?.level || 1})
+      Open Assignments: ${JSON.stringify(assignments.map(a => ({ title: a.title, due: a.dueDate, course: a.course })))}
+      Attendance Log: ${JSON.stringify(attendance.map(a => ({ subject: a.subject, status: a.status, date: a.date })))}
+    `;
+
+    if (process.env.GEMINI_API_KEY) {
+      try {
+        const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
+        const systemInstruction = `You are the AeroCore AI Study Companion. You are a professional, concise, and highly intelligent academic advisor. You are helping a student. Here is their current academic data context: ${contextStr}. Do not mention that you are an AI or reading JSON data. Provide highly specific, actionable advice based on this data. Format beautifully using markdown.`;
+        
+        const response = await ai.models.generateContent({
+          model: 'gemini-2.5-flash',
+          contents: prompt,
+          config: { systemInstruction, temperature: 0.7 }
+        });
+        
+        return res.json({ reply: response.text });
+      } catch (geminiError) {
+        console.error('Gemini API Error, falling back to simulated logic', geminiError);
+      }
+    }
+
+    // Fallback Simulated Logic
+    await new Promise(resolve => setTimeout(resolve, 1200));
+    const lowerPrompt = prompt.toLowerCase();
+    let reply = "I'm your AI Study Companion! How can I help you today?";
+
+    const totalAtt = attendance.length;
+    const presentCount = attendance.filter(a => a.status === 'present' || a.status === 'late').length;
+    const attPercentage = totalAtt > 0 ? (presentCount / totalAtt) * 100 : 100;
+    const hasLowAttendance = attPercentage < 75 && totalAtt > 0;
+    
+    const upcomingAssignments = assignments.filter(a => {
+      if(!a.dueDate) return false;
+      const due = new Date(a.dueDate);
+      const now = new Date();
+      return (due.getTime() - now.getTime()) / (1000 * 3600 * 24) < 3;
+    });
+
+    if (lowerPrompt.includes('what should i do') || lowerPrompt.includes('priority') || lowerPrompt.includes('plan')) {
+      reply = "Here is your contextual action plan based on your current academic data:\n\n";
+      let items = 1;
+      if (hasLowAttendance) {
+        reply += `**${items}. ATTENDANCE ALERT:** Your overall attendance is at ${Math.round(attPercentage)}%. You need to prioritize attending classes immediately.\n\n`;
+        items++;
+      }
+      if (upcomingAssignments.length > 0) {
+        reply += `**${items}. URGENT ASSIGNMENTS:** You have ${upcomingAssignments.length} assignment(s) due very soon:\n`;
+        upcomingAssignments.forEach(a => {
+          reply += `   - **${a.title}** (${a.course}) due on ${a.dueDate}\n`;
+        });
+        reply += "\n";
+        items++;
+      } else if (assignments.length > 0) {
+        reply += `**${items}. TASKS:** You have ${assignments.length} open assignment(s). Consider starting on **${assignments[0].title}** (${assignments[0].course}).\n\n`;
+        items++;
+      }
+      if (items === 1) reply += "You are completely caught up! Great job.";
+    } else {
+      reply = `You asked: "${prompt}". \n\n(Tip: For the absolute best responses, please add a free GEMINI_API_KEY to your .env file to enable the real Google Gemini model!)`;
+    }
+
+    res.json({ reply });
+  } catch (error) {
+    res.status(500).json({ error: 'Failed to process chat' });
+  }
+});
+
+// Fallback logic for serving frontend
 app.use(express.static(path.join(__dirname, "dist")));
 
 app.get("*", (req, res) => {
@@ -730,5 +587,6 @@ app.get("*", (req, res) => {
 });
 
 app.listen(PORT, () => {
-  console.log(`Server running on http://localhost:${PORT}`);
+  console.log(`Legacy Server running on http://localhost:${PORT}`);
+  console.log(`Google Client ID Loaded (Legacy): ${GOOGLE_CLIENT_ID ? 'Yes (' + GOOGLE_CLIENT_ID.substring(0, 10) + '...)' : 'NO'}`);
 });

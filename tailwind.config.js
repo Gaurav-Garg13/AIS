@@ -1,22 +1,26 @@
 /** @type {import('tailwindcss').Config} */
 export default {
   content: ['./index.html', './src/**/*.{js,ts,jsx,tsx}'],
-  darkMode: 'class', // Enable class-based dark mode
+  darkMode: 'class',
   theme: {
     extend: {
       colors: {
-        sage: {
-          50: '#f8faf9',
-          100: '#f1f5f2',
-          200: '#e2eae4',
-          300: '#c8d7cc',
-          400: '#a8bfad',
-          500: '#8aaca5',
-          600: '#6b968c',
-          700: '#527d72',
-          800: '#3d655d',
-          900: '#2d4f47',
-        }
+        page: 'var(--bg-page)',
+        sidebar: 'var(--bg-sidebar)',
+        card: 'var(--bg-card)',
+        primary: 'var(--text-primary)',
+        secondary: 'var(--text-secondary)',
+        accent: {
+          DEFAULT: 'var(--accent)',
+          hover: 'var(--accent-hover)'
+        },
+        border: 'var(--border)'
+      },
+      fontFamily: {
+        sans: ['Inter', 'system-ui', '-apple-system', 'sans-serif'],
+      },
+      boxShadow: {
+        'soft': '0 4px 20px rgba(0, 0, 0, 0.04)',
       }
     },
   },
