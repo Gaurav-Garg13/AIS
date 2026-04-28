@@ -3,8 +3,8 @@ import { useEffect, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
   Calendar, CheckCircle2, Clock, Target, TrendingUp, 
-  AlertCircle, Filter, Plus, Search, BarChart3, Star,
-  Zap, Users, Award, Eye, EyeOff, Trash2, X
+  AlertCircle, Plus, Search, Star,
+  Zap, Trash2, X
 } from 'lucide-react';
 
 type Status = 'todo' | 'in_progress' | 'done';
@@ -24,7 +24,7 @@ export default function Assignments() {
   const [searchTerm, setSearchTerm] = useState('');
   const [filterStatus, setFilterStatus] = useState<Status | 'all'>('all');
   const [sortBy, setSortBy] = useState<'due' | 'points' | 'course'>('due');
-  const [showStats, setShowStats] = useState(true);
+  const [showStats] = useState(true);
   const [showModal, setShowModal] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   
@@ -129,7 +129,7 @@ export default function Assignments() {
       >
         <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
           <div>
-            <h1 className="text-4xl font-bold text-slate-800 dark:text-slate-100 mb-2">
+            <h1 className="heading-editorial">
               Assignments
             </h1>
             <p className="text-sm text-sage-600 dark:text-gray-300">

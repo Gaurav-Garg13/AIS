@@ -2,8 +2,8 @@ import { apiFetch } from '../utils/api';
 import { useEffect, useMemo, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
-  Award, Target, BarChart3, Search, Users, Plus, Edit2, Save, X, TrendingUp, 
-  BookOpen, Star, AlertCircle, CheckCircle, Trash2, RefreshCw
+  Award, Target, BarChart3, Search, Users, Plus, Edit2, Save, X, 
+  , AlertCircle, CheckCircle, Trash2, RefreshCw
 } from 'lucide-react';
 
 type GradeRow = {
@@ -161,7 +161,7 @@ export default function Grades() {
       >
         <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
           <div>
-            <h1 className="text-3xl font-bold text-slate-800 dark:text-slate-100 mb-2">Grades</h1>
+            <h1 className="heading-editorial">Grades</h1>
             <p className="text-sm text-sage-500 dark:text-gray-400">
               Track your academic performance with detailed grade analysis and GPA calculation.
             </p>

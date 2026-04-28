@@ -3,8 +3,8 @@ import { useEffect, useState, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   BookOpen, Plus, Edit3, Trash2, Search, Loader2, AlertCircle,
-  Filter, TrendingUp, Clock, Users, BarChart3, CheckCircle2,
-  Award, Target, Calendar, Zap, Eye, EyeOff
+  BarChart3, CheckCircle2,
+  Award, Target, Calendar, Eye, EyeOff
 } from 'lucide-react';
 
 type Course = {
@@ -301,7 +301,7 @@ export default function Courses() {
         {/* Header */}
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-4xl font-bold text-slate-800 dark:text-slate-100 mb-2">
+            <h1 className="heading-editorial">
               Courses
             </h1>
             <p className="text-sage-600 dark:text-gray-300">Manage your courses and track your learning journey</p>

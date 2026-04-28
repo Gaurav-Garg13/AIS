@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from 'react';
-import { motion } from 'framer-motion';
 import { useAppContext } from '../context/AppContext';
 import { Play, Pause, RotateCcw, Plus, Loader2 } from 'lucide-react';
 import { apiFetch } from '../utils/api';
@@ -33,9 +32,6 @@ type Assignment = {
   priority?: string;
 };
 
-const cardClass = "bg-[#F8FAFC] dark:bg-[#242220] border border-slate-200 dark:border-white/10 rounded-2xl p-6 shadow-sm transition-colors duration-300";
-const serifTitle = "font-serif text-slate-900 dark:text-slate-100 transition-colors duration-300";
-const sansText = "font-sans text-slate-600 dark:text-slate-400 transition-colors duration-300";
 
 export default function Dashboard({ onDeepWorkToggle }: DashboardProps) {
   const { profile } = useAppContext();
@@ -112,11 +108,6 @@ export default function Dashboard({ onDeepWorkToggle }: DashboardProps) {
     fetchData();
   }, []);
 
-  // --- Stats Calculations ---
-  const totalPoints = courses.reduce((sum, c) => sum + (c.points || 0), 0);
-  const totalStudyHours = 32.5; // Mock logic
-  const currentStreak = 14; // Mock logic
-  const avgSession = 45; // Mock logic
 
   // --- Heatmap Logic ---
   const weeks = 12;
@@ -232,7 +223,7 @@ export default function Dashboard({ onDeepWorkToggle }: DashboardProps) {
 
           {/* Header Section */}
           <section>
-            <h1 className={`text-5xl tracking-tight mb-8 ${serifTitle}`}>
+            <h1 className={`text-5xl tracking-tight mb-8 section-title`}>
               Welcome back, {profile?.name?.split(' ')[0] || 'Student'}.
             </h1>
 
@@ -284,7 +275,7 @@ export default function Dashboard({ onDeepWorkToggle }: DashboardProps) {
           {/* Manual Attendance Tracker */}
           <section>
             <div className="flex items-center justify-between mb-6">
-              <h2 className={`text-2xl ${serifTitle}`}>Attendance Tracker</h2>
+              <h2 className={`text-2xl section-title`}>Attendance Tracker</h2>
               <input
                 type="date"
                 value={attendanceDate}
@@ -294,11 +285,11 @@ export default function Dashboard({ onDeepWorkToggle }: DashboardProps) {
             </div>
 
             {courses.length === 0 ? (
-              <div className={`${cardClass} flex flex-col items-center justify-center py-12`}>
-                <p className={`text-sm italic ${sansText}`}>You are not enrolled in any courses yet.</p>
+              <div className={`card-editorial flex flex-col items-center justify-center py-12`}>
+                <p className={`text-sm italic text-muted`}>You are not enrolled in any courses yet.</p>
               </div>
             ) : (
-              <div className={`${cardClass} max-h-[400px] overflow-y-auto scrollbar-thin`}>
+              <div className={`card-editorial max-h-[400px] overflow-y-auto scrollbar-thin`}>
                 <div className="flex flex-col">
                   {courses.map((course) => {
                     const courseId = (course as any)._id || course.id || course.code;
@@ -319,11 +310,11 @@ export default function Dashboard({ onDeepWorkToggle }: DashboardProps) {
                           <div className="w-full bg-slate-200 dark:bg-slate-700 h-1 rounded-full overflow-hidden flex-1">
                             <div className="bg-[#4E7F65] h-full rounded-full transition-all duration-500" style={{ width: `${percentage}%` }}></div>
                           </div>
-                          <span className={`text-sm font-semibold ${sansText} min-w-[40px] text-right`}>{percentage}%</span>
+                          <span className={`text-sm font-semibold text-muted min-w-[40px] text-right`}>{percentage}%</span>
                         </div>
 
                         {/* Column 3: Attendance Ratio */}
-                        <div className={`text-xs uppercase tracking-widest font-semibold text-center ${sansText}`}>
+                        <div className={`text-xs uppercase tracking-widest font-semibold text-center text-muted`}>
                           {attended} / {total}
                         </div>
 
@@ -352,15 +343,15 @@ export default function Dashboard({ onDeepWorkToggle }: DashboardProps) {
 
           {/* Activity & Deadlines */}
           <section>
-            <h2 className={`text-2xl mb-6 ${serifTitle}`}>Activity & Deadlines</h2>
-            <div className={`${cardClass} grid grid-cols-1 md:grid-cols-2 gap-12`}>
+            <h2 className={`text-2xl mb-6 section-title`}>Activity & Deadlines</h2>
+            <div className={`card-editorial grid grid-cols-1 md:grid-cols-2 gap-12`}>
 
               {/* Left Column: Form + Heatmap */}
               <div className="space-y-10">
                 {/* Add Deadline Form */}
                 <form onSubmit={handleAddDeadline} className="space-y-4">
                   <div>
-                    <label className={`block text-xs uppercase tracking-widest font-semibold mb-1 ${sansText}`}>Assignment/Exam Title</label>
+                    <label className={`block text-xs uppercase tracking-widest font-semibold mb-1 text-muted`}>Assignment/Exam Title</label>
                     <input
                       type="text"
                       required
@@ -371,7 +362,7 @@ export default function Dashboard({ onDeepWorkToggle }: DashboardProps) {
                     />
                   </div>
                   <div>
-                    <label className={`block text-xs uppercase tracking-widest font-semibold mb-1 ${sansText}`}>Subject</label>
+                    <label className={`block text-xs uppercase tracking-widest font-semibold mb-1 text-muted`}>Subject</label>
                     <input
                       type="text"
                       value={deadlineSubject}
@@ -382,7 +373,7 @@ export default function Dashboard({ onDeepWorkToggle }: DashboardProps) {
                   </div>
                   <div className="grid grid-cols-2 gap-6">
                     <div>
-                      <label className={`block text-xs uppercase tracking-widest font-semibold mb-1 ${sansText}`}>Date</label>
+                      <label className={`block text-xs uppercase tracking-widest font-semibold mb-1 text-muted`}>Date</label>
                       <input
                         type="date"
                         required
@@ -392,7 +383,7 @@ export default function Dashboard({ onDeepWorkToggle }: DashboardProps) {
                       />
                     </div>
                     <div>
-                      <label className={`block text-xs uppercase tracking-widest font-semibold mb-1 ${sansText}`}>Priority</label>
+                      <label className={`block text-xs uppercase tracking-widest font-semibold mb-1 text-muted`}>Priority</label>
                       <select
                         value={deadlinePriority}
                         onChange={(e) => setDeadlinePriority(e.target.value)}
@@ -418,7 +409,7 @@ export default function Dashboard({ onDeepWorkToggle }: DashboardProps) {
 
                 {/* 12-Week Heatmap */}
                 <div>
-                  <h3 className={`text-sm font-semibold uppercase tracking-widest mb-4 ${sansText}`}>12-Week Activity</h3>
+                  <h3 className={`text-sm font-semibold uppercase tracking-widest mb-4 text-muted`}>12-Week Activity</h3>
                   <div className="grid grid-cols-12 gap-1.5 w-max">
                     {Array.from({ length: weeks }).map((_, weekIdx) => (
                       <div key={weekIdx} className="space-y-1.5">
@@ -448,11 +439,11 @@ export default function Dashboard({ onDeepWorkToggle }: DashboardProps) {
 
               {/* Right Column: Upcoming Deadlines */}
               <div className="flex flex-col h-full border-l border-slate-100 dark:border-white/5 pl-8">
-                <h3 className={`text-sm font-semibold uppercase tracking-widest mb-6 ${sansText}`}>Upcoming</h3>
+                <h3 className={`text-sm font-semibold uppercase tracking-widest mb-6 text-muted`}>Upcoming</h3>
                 <div className="space-y-4 overflow-y-auto flex-1 pr-2 hide-scrollbar">
                   {upcomingDeadlines.length === 0 ? (
                     <div className="flex flex-col items-center justify-center h-full opacity-60">
-                      <p className={`text-sm italic text-center ${sansText}`}>No upcoming deadlines.<br />You're all caught up!</p>
+                      <p className={`text-sm italic text-center text-muted`}>No upcoming deadlines.<br />You're all caught up!</p>
                     </div>
                   ) : (
                     upcomingDeadlines.map(deadline => {
@@ -471,8 +462,8 @@ export default function Dashboard({ onDeepWorkToggle }: DashboardProps) {
 
                       return (
                         <div key={deadline.id} className={`flex flex-col p-4 rounded-r-xl border-l-4 ${borderClass} ${bgClass} transition-colors duration-300`}>
-                          <p className={`text-sm font-medium ${serifTitle} mb-1 leading-tight`}>{deadline.title}</p>
-                          <p className={`text-xs ${sansText}`}>
+                          <p className={`text-sm font-medium section-title mb-1 leading-tight`}>{deadline.title}</p>
+                          <p className={`text-xs text-muted`}>
                             {deadline.course || 'General'} • {new Date(deadline.due).toLocaleDateString(undefined, { weekday: 'short', month: 'short', day: 'numeric' })}
                           </p>
                         </div>
@@ -502,8 +493,8 @@ export default function Dashboard({ onDeepWorkToggle }: DashboardProps) {
                 style={{ width: `${((25 * 60 - timeLeft) / (25 * 60)) * 100}%` }}
               ></div>
             </div>
-            <h2 className={`text-xl mb-6 mt-2 ${serifTitle}`}>Focus Hub</h2>
-            <h3 className={`text-7xl font-serif mb-8 tracking-tighter ${serifTitle}`}>
+            <h2 className={`text-xl mb-6 mt-2 section-title`}>Focus Hub</h2>
+            <h3 className={`text-7xl font-serif mb-8 tracking-tighter section-title`}>
               {formatTime(timeLeft)}
             </h3>
 
@@ -524,7 +515,7 @@ export default function Dashboard({ onDeepWorkToggle }: DashboardProps) {
 
             {/* Session Logging Input */}
             <div className="text-left">
-              <label className={`block text-xs uppercase tracking-widest font-semibold mb-2 ${sansText}`}>Session Log</label>
+              <label className={`block text-xs uppercase tracking-widest font-semibold mb-2 text-muted`}>Session Log</label>
               <input
                 type="text"
                 value={focusSessionText}
