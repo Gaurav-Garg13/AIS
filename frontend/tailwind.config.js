@@ -1,7 +1,7 @@
 /** @type {import('tailwindcss').Config} */
 export default {
   content: ['./index.html', './src/**/*.{js,ts,jsx,tsx}'],
-  darkMode: 'class', // Enable class-based dark mode
+  darkMode: 'class',
   theme: {
     extend: {
       colors: {
@@ -16,8 +16,12 @@ export default {
           700: '#527d72',
           800: '#3d655d',
           900: '#2d4f47',
-        }
-      }
+        },
+      },
+      fontFamily: {
+        serif: ['"Playfair Display"', 'serif'],
+        sans: ['Outfit', '"DM Sans"', 'sans-serif'],
+      },
     },
   },
   plugins: [],

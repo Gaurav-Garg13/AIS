@@ -3,7 +3,7 @@ import { useEffect, useMemo, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
   Award, Target, BarChart3, Search, Users, Plus, Edit2, Save, X, 
-  , AlertCircle, CheckCircle, Trash2, RefreshCw
+  AlertCircle, CheckCircle, Trash2, RefreshCw
 } from 'lucide-react';
 
 type GradeRow = {

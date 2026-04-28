@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Sun, Moon, Mail, Lock, User, Paperclip } from 'lucide-react';
+import { Sun, Moon, Mail, Lock, User, Paperclip, Sparkles, Library } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import { GoogleLogin } from '@react-oauth/google';
@@ -18,6 +18,52 @@ const NoiseOverlay = () => (
   </div>
 );
 
+// Atmospheric Background with moving dot grid
+const AtmosphericBackground = ({ isDark }) => (
+  <div className="fixed inset-0 overflow-hidden pointer-events-none">
+    {/* Base Gradient */}
+    <div className={`absolute inset-0 transition-colors duration-1000 
+      ${isDark 
+        ? 'bg-[#0F0E0D]' 
+        : 'bg-[#F9F7F2]'}`} 
+    />
+    
+    {/* Radial Glows */}
+    <motion.div 
+      animate={{ 
+        scale: [1, 1.2, 1],
+        opacity: [0.3, 0.5, 0.3],
+        x: [0, 50, 0],
+        y: [0, -30, 0]
+      }}
+      transition={{ duration: 15, repeat: Infinity, ease: "linear" }}
+      className={`absolute -top-[20%] -left-[10%] w-[60%] h-[60%] rounded-full blur-[120px]
+        ${isDark ? 'bg-[#2D241E]' : 'bg-[#E5DFD3]'}`}
+    />
+    
+    <motion.div 
+      animate={{ 
+        scale: [1.2, 1, 1.2],
+        opacity: [0.2, 0.4, 0.2],
+        x: [0, -40, 0],
+        y: [0, 60, 0]
+      }}
+      transition={{ duration: 12, repeat: Infinity, ease: "linear" }}
+      className={`absolute -bottom-[10%] -right-[5%] w-[50%] h-[50%] rounded-full blur-[100px]
+        ${isDark ? 'bg-[#1E252D]' : 'bg-[#D3E0E5]'}`}
+    />
+
+    {/* Dot Grid */}
+    <div 
+      className="absolute inset-0 opacity-[0.15] dark:opacity-[0.07]" 
+      style={{ 
+        backgroundImage: `radial-gradient(${isDark ? '#E8E4D9' : '#2C2A29'} 1px, transparent 1px)`,
+        backgroundSize: '32px 32px'
+      }} 
+    />
+  </div>
+);
+
 export default function AuthGateway() {
   const [isDark, setIsDark] = useState(false);
   const [isLogin, setIsLogin] = useState(true);
@@ -32,6 +78,13 @@ export default function AuthGateway() {
   const [error, setError] = useState('');
 
   const fileInputRef = useRef(null);
+
+  useEffect(() => {
+    // Check system preference
+    if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
+      setIsDark(true);
+    }
+  }, []);
 
   useEffect(() => {
     if (isDark) {
@@ -60,7 +113,6 @@ export default function AuthGateway() {
       if (!res.ok) throw new Error(data.error || 'Authentication failed');
 
       if (!isLogin && avatar) {
-        // Upload avatar
         const formData = new FormData();
         formData.append('avatar', avatar);
         const avatarRes = await fetch(`${VITE_API_URL}/api/profile/avatar`, {
@@ -114,12 +166,13 @@ export default function AuthGateway() {
 
   return (
     <div 
-      className={`min-h-screen w-full transition-colors duration-400 ease-in-out flex items-center justify-center relative overflow-hidden
-        ${isDark ? 'bg-[#1A1817] text-[#E8E4D9]' : 'bg-[#F4F1EB] text-[#2C2A29]'}`}
-      style={{ fontFamily: '"DM Sans", "Outfit", sans-serif' }}
+      className={`min-h-screen w-full flex items-center justify-center relative overflow-hidden font-sans
+        ${isDark ? 'text-[#E8E4D9]' : 'text-[#2C2A29]'}`}
     >
+      <AtmosphericBackground isDark={isDark} />
       <NoiseOverlay />
       
+      {/* Theme Toggle */}
       <button 
         onClick={() => setIsDark(!isDark)}
         className="absolute top-8 right-8 p-3 rounded-full hover:bg-black/5 dark:hover:bg-white/5 transition-colors z-40 focus:outline-none"
@@ -132,7 +185,7 @@ export default function AuthGateway() {
               initial={{ opacity: 0, scale: 0.8, rotate: -90 }}
               animate={{ opacity: 1, scale: 1, rotate: 0 }}
               exit={{ opacity: 0, scale: 0.8, rotate: 90 }}
-              transition={{ duration: 0.4, ease: "easeInOut" }}
+              transition={{ duration: 0.4 }}
             >
               <Sun className="w-6 h-6 text-[#E8E4D9]" />
             </motion.div>
@@ -142,7 +195,7 @@ export default function AuthGateway() {
               initial={{ opacity: 0, scale: 0.8, rotate: 90 }}
               animate={{ opacity: 1, scale: 1, rotate: 0 }}
               exit={{ opacity: 0, scale: 0.8, rotate: -90 }}
-              transition={{ duration: 0.4, ease: "easeInOut" }}
+              transition={{ duration: 0.4 }}
             >
               <Moon className="w-6 h-6 text-[#2C2A29]" />
             </motion.div>
@@ -150,153 +203,185 @@ export default function AuthGateway() {
         </AnimatePresence>
       </button>
 
+      {/* Decorative Branding */}
+      <div className="absolute top-8 left-8 flex items-center gap-3 z-40 opacity-40 hover:opacity-100 transition-opacity">
+        <Library className="w-5 h-5" />
+        <span className="font-serif tracking-widest text-xs uppercase">Est. 2024</span>
+      </div>
+
       <motion.div 
-        layout
-        transition={{ type: "spring", bounce: 0.2, duration: 0.6 }}
-        className={`relative w-full max-w-[420px] p-10 sm:p-12 rounded-xl z-10 transition-colors duration-400
-          ${isDark ? 'bg-[#242220]' : 'bg-[#EBE5D9]'}`
-        }
-        style={{
-          boxShadow: isDark 
-            ? 'inset 1px 1px 0px rgba(255, 255, 255, 0.06)' 
-            : '0px 20px 40px rgba(44, 42, 41, 0.05)'
-        }}
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.8, ease: "easeOut" }}
+        className="relative w-full max-w-[440px] px-6 z-10"
       >
-        <motion.div layout className="mb-10 text-center">
-          <motion.h1 
-            layout 
-            className="text-3xl mb-3 tracking-tight" 
-            style={{ fontFamily: '"Playfair Display", "Lora", serif' }}
-          >
-            The Library Archive
-          </motion.h1>
-          <motion.p layout className="text-sm opacity-60">
-            {isLogin ? 'Welcome back to your academic platform.' : 'Join our community of scholars.'}
-          </motion.p>
-        </motion.div>
+        <div className={`relative p-10 sm:p-12 rounded-2xl overflow-hidden border transition-all duration-700
+          ${isDark 
+            ? 'bg-[#1A1817]/80 border-white/5 shadow-2xl backdrop-blur-2xl' 
+            : 'bg-[#FDFDFD]/90 border-black/5 shadow-xl backdrop-blur-xl'}`}
+        >
+          {/* Subtle Aurora Glow behind the card contents */}
+          <div className={`absolute -top-24 -right-24 w-48 h-48 rounded-full blur-[80px] opacity-20
+            ${isDark ? 'bg-orange-500' : 'bg-amber-400'}`} 
+          />
 
-        {error && (
-          <div className="mb-4 text-red-500 text-sm text-center">
-            {error}
-          </div>
-        )}
-
-        <form className="space-y-6" onSubmit={handleSubmit}>
-          <AnimatePresence mode="popLayout" initial={false}>
-            {!isLogin && (
+          <div className="relative z-10">
+            <header className="mb-10 text-center">
               <motion.div
-                key="name"
-                initial={{ opacity: 0, height: 0, y: -10 }}
-                animate={{ opacity: 1, height: 'auto', y: 0 }}
-                exit={{ opacity: 0, height: 0, y: -10 }}
-                transition={{ duration: 0.3 }}
+                initial={{ opacity: 0, scale: 0.9 }}
+                animate={{ opacity: 1, scale: 1 }}
+                transition={{ delay: 0.2 }}
+                className="inline-flex items-center justify-center w-12 h-12 rounded-xl bg-gradient-to-br from-[#B06D5B] to-[#8C4A4A] text-white mb-6 shadow-lg shadow-orange-900/20"
               >
-                <div className="relative group">
-                  <User className="absolute left-0 top-3.5 w-5 h-5 opacity-40 transition-opacity group-focus-within:opacity-80" />
+                <Sparkles className="w-6 h-6" />
+              </motion.div>
+              
+              <h1 className="text-3xl font-serif mb-3 tracking-tight">
+                {isLogin ? 'The Library Archive' : 'Join the Registry'}
+              </h1>
+              <p className="text-sm opacity-60 font-sans tracking-wide uppercase text-[10px]">
+                {isLogin ? 'Authenticate Your Credentials' : 'Create Your Academic Portfolio'}
+              </p>
+            </header>
+
+            {error && (
+              <motion.div 
+                initial={{ opacity: 0, x: -10 }}
+                animate={{ opacity: 1, x: 0 }}
+                className="mb-6 p-3 rounded-lg bg-red-500/10 border border-red-500/20 text-red-500 text-xs text-center font-medium"
+              >
+                {error}
+              </motion.div>
+            )}
+
+            <form className="space-y-5" onSubmit={handleSubmit}>
+              <AnimatePresence mode="wait">
+                {!isLogin && (
+                  <motion.div
+                    key="name"
+                    initial={{ opacity: 0, height: 0, y: -10 }}
+                    animate={{ opacity: 1, height: 'auto', y: 0 }}
+                    exit={{ opacity: 0, height: 0, y: -10 }}
+                    className="relative group"
+                  >
+                    <User className="absolute left-0 top-3 w-4 h-4 opacity-30 group-focus-within:opacity-80 transition-opacity" />
+                    <input 
+                      type="text" 
+                      placeholder="Academic Name"
+                      value={name}
+                      onChange={(e) => setName(e.target.value)}
+                      required={!isLogin}
+                      className={`w-full bg-transparent border-b py-2.5 pl-8 pr-4 outline-none transition-all text-sm
+                        ${isDark ? 'border-white/10 focus:border-[#C78B77]' : 'border-black/10 focus:border-[#B06D5B]'}`}
+                    />
+                  </motion.div>
+                )}
+              </AnimatePresence>
+              
+              <div className="relative group">
+                <Mail className="absolute left-0 top-3 w-4 h-4 opacity-30 group-focus-within:opacity-80 transition-opacity" />
+                <input 
+                  type="email" 
+                  placeholder="University Email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  required
+                  className={`w-full bg-transparent border-b py-2.5 pl-8 pr-4 outline-none transition-all text-sm
+                    ${isDark ? 'border-white/10 focus:border-[#C78B77]' : 'border-black/10 focus:border-[#B06D5B]'}`}
+                />
+              </div>
+              
+              <div className="relative group">
+                <Lock className="absolute left-0 top-3 w-4 h-4 opacity-30 group-focus-within:opacity-80 transition-opacity" />
+                <input 
+                  type="password" 
+                  placeholder="Password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  required
+                  className={`w-full bg-transparent border-b py-2.5 pl-8 pr-4 outline-none transition-all text-sm
+                    ${isDark ? 'border-white/10 focus:border-[#C78B77]' : 'border-black/10 focus:border-[#B06D5B]'}`}
+                />
+              </div>
+
+              {!isLogin && (
+                <div className="pt-2">
+                  <div 
+                    onClick={() => fileInputRef.current?.click()}
+                    className={`w-full border rounded-xl p-4 flex flex-col items-center justify-center cursor-pointer transition-all duration-300
+                      ${isDark 
+                        ? 'border-white/5 bg-white/5 hover:bg-white/10' 
+                        : 'border-black/5 bg-black/5 hover:bg-black/10'}`}
+                  >
+                    <Paperclip className="w-4 h-4 mb-1.5 opacity-40" />
+                    <span className="text-[11px] opacity-60 font-medium">
+                      {avatar ? avatar.name : 'Upload Profile Photo'}
+                    </span>
+                  </div>
                   <input 
-                    type="text" 
-                    placeholder="Full Name"
-                    value={name}
-                    onChange={(e) => setName(e.target.value)}
-                    required={!isLogin}
-                    className={`w-full bg-transparent border-b py-3 pl-9 pr-4 outline-none transition-colors
-                      ${isDark ? 'border-white/10 focus:border-[#C78B77]' : 'border-black/10 focus:border-[#B06D5B]'}`}
+                    type="file" 
+                    ref={fileInputRef} 
+                    onChange={handleFileChange} 
+                    accept="image/*" 
+                    className="hidden" 
                   />
                 </div>
-              </motion.div>
-            )}
-            
-            <motion.div layout key="email" className="relative group">
-              <Mail className="absolute left-0 top-3.5 w-5 h-5 opacity-40 transition-opacity group-focus-within:opacity-80" />
-              <input 
-                type="email" 
-                placeholder="University Email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                required
-                className={`w-full bg-transparent border-b py-3 pl-9 pr-4 outline-none transition-colors
-                  ${isDark ? 'border-white/10 focus:border-[#C78B77]' : 'border-black/10 focus:border-[#B06D5B]'}`}
-              />
-            </motion.div>
-            
-            <motion.div layout key="password" className="relative group">
-              <Lock className="absolute left-0 top-3.5 w-5 h-5 opacity-40 transition-opacity group-focus-within:opacity-80" />
-              <input 
-                type="password" 
-                placeholder="Password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                required
-                className={`w-full bg-transparent border-b py-3 pl-9 pr-4 outline-none transition-colors
-                  ${isDark ? 'border-white/10 focus:border-[#C78B77]' : 'border-black/10 focus:border-[#B06D5B]'}`}
-              />
-            </motion.div>
+              )}
 
-            {!isLogin && (
-              <motion.div
-                key="dropzone"
-                initial={{ opacity: 0, height: 0, y: -10 }}
-                animate={{ opacity: 1, height: 'auto', y: 0 }}
-                exit={{ opacity: 0, height: 0, y: -10 }}
-                transition={{ duration: 0.3 }}
-                className="pt-2 pb-1"
-              >
-                <div 
-                  onClick={() => fileInputRef.current?.click()}
-                  className={`w-full border-2 border-dashed rounded-lg p-6 flex flex-col items-center justify-center cursor-pointer transition-colors
+              <div className="pt-6 space-y-5">
+                <button 
+                  type="submit"
+                  disabled={loading}
+                  className={`w-full py-3 rounded-xl font-bold text-xs uppercase tracking-[0.2em] transition-all transform active:scale-[0.98] disabled:opacity-50
                     ${isDark 
-                      ? 'border-white/20 hover:border-white/40 text-[#E8E4D9]' 
-                      : 'border-black/20 hover:border-black/40 text-[#2C2A29]'}`}
+                      ? 'bg-[#C78B77] text-[#0F0E0D] shadow-lg shadow-orange-900/20' 
+                      : 'bg-[#B06D5B] text-[#FDFDFD] shadow-lg shadow-orange-900/10'}`}
                 >
-                  <Paperclip className="w-5 h-5 mb-2 opacity-50" />
-                  <span className="text-sm opacity-60">
-                    {avatar ? avatar.name : 'Upload Profile ID Photo'}
-                  </span>
+                  {loading ? 'Verifying...' : isLogin ? 'Access Archive' : 'Register Scholar'}
+                </button>
+
+                <div className="relative py-2">
+                  <div className="absolute inset-0 flex items-center">
+                    <div className={`w-full border-t ${isDark ? 'border-white/5' : 'border-black/5'}`} />
+                  </div>
+                  <div className="relative flex justify-center text-[10px] uppercase tracking-widest">
+                    <span className={`px-4 ${isDark ? 'bg-[#1A1817]' : 'bg-[#FDFDFD]'} opacity-40`}>OR</span>
+                  </div>
                 </div>
-                <input 
-                  type="file" 
-                  ref={fileInputRef} 
-                  onChange={handleFileChange} 
-                  accept="image/*" 
-                  className="hidden" 
-                />
-              </motion.div>
-            )}
-          </AnimatePresence>
 
-          <motion.div layout className="pt-4 space-y-4">
-            <button 
-              type="submit"
-              disabled={loading}
-              className={`w-full py-3.5 rounded font-medium transition-all hover:brightness-95 focus:outline-none focus:ring-2 focus:ring-offset-2 disabled:opacity-50
-                ${isDark 
-                  ? 'bg-[#C78B77] text-[#1A1817] focus:ring-[#C78B77] focus:ring-offset-[#242220]' 
-                  : 'bg-[#B06D5B] text-[#F4F1EB] focus:ring-[#B06D5B] focus:ring-offset-[#EBE5D9]'}`}
-            >
-              {loading ? 'Please wait...' : isLogin ? 'Sign In' : 'Create Account'}
-            </button>
-            <div className="flex items-center justify-center pt-2">
-              <GoogleLogin
-                onSuccess={handleGoogleSuccess}
-                onError={() => setError('Google login failed')}
-                useOneTap
-              />
-            </div>
-          </motion.div>
-        </form>
+                <div className="flex items-center justify-center">
+                  <div className="w-full max-w-[240px] [&_iframe]:!w-full">
+                    <GoogleLogin
+                      onSuccess={handleGoogleSuccess}
+                      onError={() => setError('Google Authentication Failed')}
+                      useOneTap
+                      theme={isDark ? "filled_black" : "outline"}
+                      shape="pill"
+                    />
+                  </div>
+                </div>
+              </div>
+            </form>
 
-        <motion.div layout className="mt-8 text-center text-sm">
-          <span className="opacity-60">
-            {isLogin ? "Don't have an account? " : "Already a member? "}
-          </span>
-          <button 
-            onClick={() => setIsLogin(!isLogin)}
-            className="font-medium hover:underline focus:outline-none ml-1"
-            style={{ color: isDark ? '#C78B77' : '#B06D5B' }}
-          >
-            {isLogin ? 'Sign Up' : 'Log In'}
-          </button>
-        </motion.div>
+            <footer className="mt-10 text-center text-xs">
+              <p className="opacity-50 inline tracking-wide">
+                {isLogin ? "New to the collective? " : "Already registered? "}
+              </p>
+              <button 
+                onClick={() => setIsLogin(!isLogin)}
+                className="font-bold uppercase tracking-widest ml-1 transition-colors"
+                style={{ color: isDark ? '#C78B77' : '#B06D5B' }}
+              >
+                {isLogin ? 'Sign Up' : 'Sign In'}
+              </button>
+            </footer>
+          </div>
+        </div>
+        
+        {/* Editorial Footnote */}
+        <p className="mt-8 text-center text-[9px] opacity-20 uppercase tracking-[0.3em] font-medium">
+          © 2024 StudyFlow Academic Intelligence Portal
+        </p>
       </motion.div>
     </div>
   );
