@@ -31,7 +31,7 @@ export default function MarksAnalytics() {
     >
       <div className="flex items-center justify-between mb-6">
         <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-blue-500 to-cyan-400 flex items-center justify-center">
+          <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-sage-600 to-sage-800 flex items-center justify-center">
             <TrendingUp size={20} className="text-sage-900 dark:text-white" />
           </div>
           <div>

@@ -25,9 +25,9 @@ export default function AIStudyCompanion() {
   }, []);
 
   const quickActions = [
-    { icon: BookOpen, label: 'Summarize Lecture', color: 'from-blue-500 to-cyan-400' },
-    { icon: FileText, label: 'Generate Flashcards', color: 'from-purple-500 to-pink-400' },
-    { icon: MessageSquare, label: 'Ask a Question', color: 'from-green-500 to-emerald-400' },
+    { icon: BookOpen, label: 'Summarize Lecture', color: 'from-sage-600 to-sage-800' },
+    { icon: FileText, label: 'Generate Flashcards', color: 'from-[#B89B72] to-[#A0855F]' },
+    { icon: MessageSquare, label: 'Ask a Question', color: 'from-[#4E7F65] to-sage-600' },
   ];
 
   return (

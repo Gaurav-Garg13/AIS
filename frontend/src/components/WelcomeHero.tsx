@@ -29,13 +29,13 @@ export default function WelcomeHero() {
               <motion.div
                 animate={{ rotate: [0, 360] }}
                 transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
-                className="w-12 h-12 rounded-full bg-gradient-to-br from-blue-500 to-purple-500 flex items-center justify-center"
+                className="w-12 h-12 rounded-full bg-gradient-to-br from-sage-700 to-sage-900 flex items-center justify-center"
               >
                 <Sparkles size={24} className="text-white" />
               </motion.div>
               <div>
                 <h1 className="text-3xl md:text-4xl font-bold text-white">
-                  {greeting}, <span className="bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent">{profile.name}</span>
+                  {greeting}, <span className="bg-gradient-to-r from-sage-600 to-[#8aaca5] bg-clip-text text-transparent">{profile.name}</span>
                 </h1>
                 <p className="text-gray-300 text-lg">Ready to conquer your academic goals today?</p>
               </div>
@@ -79,7 +79,7 @@ export default function WelcomeHero() {
             <motion.button
               whileHover={{ scale: 1.05, y: -2 }}
               whileTap={{ scale: 0.95 }}
-              className="w-full p-4 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-xl font-medium hover:from-blue-700 hover:to-purple-700 transition-all duration-300 shadow-lg hover:shadow-xl flex items-center justify-center gap-2"
+              className="w-full p-4 bg-gradient-to-r from-[#4E7F65] to-sage-800 text-white rounded-xl font-medium hover:from-sage-800 hover:to-sage-900 transition-all duration-300 shadow-lg hover:shadow-xl flex items-center justify-center gap-2"
             >
               <Calendar size={20} />
               Start Study Session
@@ -110,7 +110,7 @@ export default function WelcomeHero() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, delay: 0.6 }}
-          className="mt-8 p-6 bg-gradient-to-r from-blue-500/10 to-purple-500/10 rounded-2xl border border-white/10"
+          className="mt-8 p-6 bg-gradient-to-r from-[#B89B72]/10 to-[#8aaca5]/10 rounded-2xl border border-white/10"
         >
           <blockquote className="text-center">
             <p className="text-lg text-gray-200 italic mb-2">

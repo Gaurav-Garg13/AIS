@@ -2,6 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { useAppContext } from '../context/AppContext';
 import { Play, Pause, RotateCcw, Plus, Loader2 } from 'lucide-react';
 import { apiFetch } from '../utils/api';
+import StudyAssistantBot from '../components/StudyAssistantBot';
+import QuickNotes from '../components/QuickNotes';
 
 interface DashboardProps {
   onDeepWorkToggle: (active: boolean) => void;
@@ -13,7 +15,6 @@ type Course = {
   title: string;
   progress: number;
   credits: number;
-  points: number;
 };
 
 type AttendanceEntry = {
@@ -28,7 +29,6 @@ type Assignment = {
   course: string;
   due: string;
   status: string;
-  points: number;
   priority?: string;
 };
 
@@ -154,7 +154,6 @@ export default function Dashboard({ onDeepWorkToggle }: DashboardProps) {
           course: deadlineSubject || "General",
           due: deadlineDate,
           priority: deadlinePriority,
-          points: 10,
           status: 'todo'
         }),
       });
@@ -525,6 +524,12 @@ export default function Dashboard({ onDeepWorkToggle }: DashboardProps) {
               />
             </div>
           </div>
+
+          {/* Study Assistant Bot */}
+          <StudyAssistantBot />
+
+          {/* Quick Notes */}
+          <QuickNotes />
 
         </div>
       </div>

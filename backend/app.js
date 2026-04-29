@@ -16,6 +16,7 @@ import attendanceRoutes from "./routes/attendance.routes.js";
 import deadlinesRoutes from "./routes/deadlines.routes.js";
 import scheduleRoutes from "./routes/schedule.routes.js";
 import authRoutes from "./routes/auth.routes.js";
+import notesRoutes from "./routes/notes.routes.js";
 import { requireAuth } from "./middleware/auth.middleware.js";
 
 const app = express();
@@ -33,6 +34,7 @@ app.use("/api/attendance", requireAuth, attendanceRoutes);
 app.use("/api/deadlines", requireAuth, deadlinesRoutes);
 app.use("/api/schedule", requireAuth, scheduleRoutes);
 app.use("/api/auth", authRoutes);
+app.use("/api/notes", requireAuth, notesRoutes);
 
 app.use(express.static(path.join(__dirname, "../frontend/public")));
 app.use(express.static(path.join(__dirname, "../frontend/dist")));

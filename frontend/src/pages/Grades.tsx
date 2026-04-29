@@ -11,7 +11,6 @@ type GradeRow = {
   code: string;
   credits: number;
   grade: 'A+' | 'A' | 'A-' | 'B+' | 'B' | 'B-' | 'C' | 'C-' | 'D' | 'F';
-  points?: number;
 };
 
 const gradePoints: Record<GradeRow['grade'], number> = {
@@ -37,13 +36,13 @@ function computeGpa(data: GradeRow[]): number {
 export default function Grades() {
   const [rows, setRows] = useState<GradeRow[]>([]);
   const [searchTerm, setSearchTerm] = useState('');
-  const [sortBy, setSortBy] = useState<'grade' | 'credits' | 'points' | 'course'>('course');
+  const [sortBy, setSortBy] = useState<'grade' | 'credits' | 'course'>('course');
   const [editingCode, setEditingCode] = useState<string | null>(null);
   const [editingGrade, setEditingGrade] = useState<GradeRow['grade'] | ''>('');
   const [editingCredits, setEditingCredits] = useState<string>('');
-  const [editingPoints, setEditingPoints] = useState<string>('');
+
   const [isAdding, setIsAdding] = useState(false);
-  const [newRow, setNewRow] = useState({ course: '', code: '', credits: '', grade: 'A', points: '' });
+  const [newRow, setNewRow] = useState({ course: '', code: '', credits: '', grade: 'A' });
   const [isLoading, setIsLoading] = useState(false);
   const [saveStatus, setSaveStatus] = useState<'idle' | 'saving' | 'saved' | 'error'>('idle');
 
@@ -59,24 +58,24 @@ export default function Grades() {
         } else {
           // Fallback to default data
           setRows([
-            { course: 'Computer Science', code: 'CS101', credits: 4, grade: 'A', points: 36 },
-            { course: 'Mathematics', code: 'MATH201', credits: 3, grade: 'B+', points: 24 },
-            { course: 'Physics', code: 'PHY150', credits: 4, grade: 'A-', points: 34 },
-            { course: 'English Literature', code: 'ENG200', credits: 3, grade: 'B', points: 21 },
-            { course: 'Chemistry', code: 'CHEM101', credits: 4, grade: 'C', points: 24 },
-            { course: 'History', code: 'HIST100', credits: 3, grade: 'A+', points: 30 },
+            { course: 'Computer Science', code: 'CS101', credits: 4, grade: 'A' },
+            { course: 'Mathematics', code: 'MATH201', credits: 3, grade: 'B+' },
+            { course: 'Physics', code: 'PHY150', credits: 4, grade: 'A-' },
+            { course: 'English Literature', code: 'ENG200', credits: 3, grade: 'B' },
+            { course: 'Chemistry', code: 'CHEM101', credits: 4, grade: 'C' },
+            { course: 'History', code: 'HIST100', credits: 3, grade: 'A+' },
           ]);
         }
       } catch (error) {
         console.error('Error loading grades:', error);
         // Fallback data
         setRows([
-          { course: 'Computer Science', code: 'CS101', credits: 4, grade: 'A', points: 36 },
-          { course: 'Mathematics', code: 'MATH201', credits: 3, grade: 'B+', points: 24 },
-          { course: 'Physics', code: 'PHY150', credits: 4, grade: 'A-', points: 34 },
-          { course: 'English Literature', code: 'ENG200', credits: 3, grade: 'B', points: 21 },
-          { course: 'Chemistry', code: 'CHEM101', credits: 4, grade: 'C', points: 24 },
-          { course: 'History', code: 'HIST100', credits: 3, grade: 'A+', points: 30 },
+          { course: 'Computer Science', code: 'CS101', credits: 4, grade: 'A' },
+          { course: 'Mathematics', code: 'MATH201', credits: 3, grade: 'B+' },
+          { course: 'Physics', code: 'PHY150', credits: 4, grade: 'A-' },
+          { course: 'English Literature', code: 'ENG200', credits: 3, grade: 'B' },
+          { course: 'Chemistry', code: 'CHEM101', credits: 4, grade: 'C' },
+          { course: 'History', code: 'HIST100', credits: 3, grade: 'A+' },
         ]);
       } finally {
         setIsLoading(false);
@@ -127,8 +126,6 @@ export default function Grades() {
           return a.grade.localeCompare(b.grade);
         case 'credits':
           return b.credits - a.credits;
-        case 'points':
-          return (b.points || 0) - (a.points || 0);
         default:
           return a.course.localeCompare(b.course);
       }
@@ -139,16 +136,16 @@ export default function Grades() {
   const totalCredits = useMemo(() => filteredAndSortedRows.reduce((sum, r) => sum + r.credits, 0), [filteredAndSortedRows]);
 
   const gradeColors: Record<GradeRow['grade'], string> = {
-    'A+': 'bg-gradient-to-r from-emerald-500 to-teal-500 text-sage-900 dark:text-white border-emerald-400',
-    'A': 'bg-gradient-to-r from-emerald-400 to-green-500 text-sage-900 dark:text-white border-green-400',
-    'A-': 'bg-gradient-to-r from-green-400 to-emerald-500 text-sage-900 dark:text-white border-green-400',
-    'B+': 'bg-gradient-to-r from-blue-400 to-indigo-500 text-sage-900 dark:text-white border-blue-400',
-    'B': 'bg-gradient-to-r from-blue-300 to-blue-500 text-sage-900 dark:text-white border-blue-400',
-    'B-': 'bg-gradient-to-r from-blue-300 to-blue-400 text-sage-900 dark:text-white border-blue-300',
-    'C': 'bg-gradient-to-r from-yellow-400 to-emerald-500 text-sage-900 dark:text-white border-yellow-400',
-    'C-': 'bg-gradient-to-r from-yellow-300 to-yellow-400 text-sage-900 dark:text-white border-yellow-300',
-    'D': 'bg-gradient-to-r from-orange-400 to-red-500 text-sage-900 dark:text-white border-orange-400',
-    'F': 'bg-gradient-to-r from-red-500 to-rose-600 text-sage-900 dark:text-white border-red-400',
+    'A+': 'bg-gradient-to-r from-sage-700 to-sage-800 text-white border-sage-700',
+    'A': 'bg-gradient-to-r from-sage-600 to-sage-700 text-white border-sage-600',
+    'A-': 'bg-gradient-to-r from-sage-500 to-sage-600 text-white border-sage-500',
+    'B+': 'bg-gradient-to-r from-[#8aaca5] to-[#6b968c] text-white border-[#8aaca5]',
+    'B': 'bg-gradient-to-r from-[#a8bfad] to-[#8aaca5] text-sage-900 border-[#a8bfad]',
+    'B-': 'bg-gradient-to-r from-[#c8d7cc] to-[#a8bfad] text-sage-900 border-[#c8d7cc]',
+    'C': 'bg-gradient-to-r from-[#B89B72] to-[#A0855F] text-white border-[#B89B72]',
+    'C-': 'bg-gradient-to-r from-[#D4BFA0] to-[#B89B72] text-sage-900 border-[#D4BFA0]',
+    'D': 'bg-gradient-to-r from-[#8C4A4A] to-[#753D3D] text-white border-[#8C4A4A]',
+    'F': 'bg-gradient-to-r from-[#6A3232] to-[#542828] text-white border-[#6A3232]',
   };
 
   return (
@@ -195,16 +192,7 @@ export default function Grades() {
               <p className="text-xs text-sage-500 dark:text-gray-400">total</p>
             </div>
             
-            <div className="bg-white dark:bg-white/5 backdrop-blur-xl rounded-xl p-4 border border-gray-200 dark:border-white/10">
-              <div className="flex items-center gap-2 mb-1">
-                <Users className="w-4 h-4 text-blue-400" />
-                <span className="text-xs text-sage-500 dark:text-gray-400">Points</span>
-              </div>
-              <p className="text-2xl font-bold text-sage-900 dark:text-white">
-                {filteredAndSortedRows.reduce((sum, r) => sum + (r.points || gradePoints[r.grade] * r.credits), 0)}
-              </p>
-              <p className="text-xs text-sage-500 dark:text-gray-400">total</p>
-            </div>
+            <div className="bg-white dark:bg-white/5 backdrop-blur-xl rounded-xl p-4 border border-gray-200 dark:border-white/10 hidden md:block opacity-0 pointer-events-none"></div>
           </div>
         </div>
 
@@ -230,7 +218,6 @@ export default function Grades() {
               <option value="course">Sort by Course</option>
               <option value="grade">Sort by Grade</option>
               <option value="credits">Sort by Credits</option>
-              <option value="points">Sort by Points</option>
             </select>
             
             <motion.button
@@ -343,11 +330,10 @@ export default function Grades() {
                       course: newRow.course,
                       code: newRow.code,
                       credits: parseInt(newRow.credits),
-                      grade: newRow.grade as GradeRow['grade'],
-                      points: gradePoints[newRow.grade as GradeRow['grade']] * parseInt(newRow.credits)
+                      grade: newRow.grade as GradeRow['grade']
                     };
                     setRows([...rows, newGrade]);
-                    setNewRow({ course: '', code: '', credits: '', grade: 'A', points: '' });
+                    setNewRow({ course: '', code: '', credits: '', grade: 'A' });
                     setIsAdding(false);
                     saveGrades([...rows, newGrade]);
                   }
@@ -363,7 +349,7 @@ export default function Grades() {
                 whileTap={{ scale: 0.98 }}
                 onClick={() => {
                   setIsAdding(false);
-                  setNewRow({ course: '', code: '', credits: '', grade: 'A', points: '' });
+                  setNewRow({ course: '', code: '', credits: '', grade: 'A' });
                 }}
                 className="px-4 py-2 bg-gray-500 text-sage-900 dark:text-white rounded-lg font-medium hover:bg-gray-600 transition-all"
               >
@@ -389,7 +375,6 @@ export default function Grades() {
                 <th className="px-4 py-3 text-left">Code</th>
                 <th className="px-4 py-3 text-center">Credits</th>
                 <th className="px-4 py-3 text-center">Grade</th>
-                <th className="px-4 py-3 text-center">Points</th>
                 <th className="px-4 py-3 text-center">Actions</th>
               </tr>
             </thead>
@@ -476,11 +461,6 @@ export default function Grades() {
                       )}
                     </td>
                     <td className="px-4 py-3 text-center">
-                      <span className="text-sage-900 dark:text-white font-medium">
-                        {row.points || gradePoints[row.grade] * row.credits}
-                      </span>
-                    </td>
-                    <td className="px-4 py-3 text-center">
                       <div className="flex items-center justify-center gap-2">
                         {editingCode === row.code ? (
                           <>
@@ -513,7 +493,6 @@ export default function Grades() {
                                 setEditingCode(row.code);
                                 setEditingGrade(row.grade);
                                 setEditingCredits(String(row.credits));
-                                setEditingPoints(String(row.points || gradePoints[row.grade] * row.credits));
                               }}
                               className="p-1 text-blue-400 hover:text-blue-300 transition-colors"
                             >

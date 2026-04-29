@@ -15,7 +15,6 @@ interface Assignment {
   course: string;
   due: string;
   status: Status;
-  points: number;
 }
 
 export default function Assignments() {
@@ -23,7 +22,7 @@ export default function Assignments() {
   const [error, setError] = useState<string | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
   const [filterStatus, setFilterStatus] = useState<Status | 'all'>('all');
-  const [sortBy, setSortBy] = useState<'due' | 'points' | 'course'>('due');
+  const [sortBy, setSortBy] = useState<'due' | 'course'>('due');
   const [showStats] = useState(true);
   const [showModal, setShowModal] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
@@ -32,7 +31,6 @@ export default function Assignments() {
     title: '',
     course: '',
     due: '',
-    points: 10,
     status: 'todo' as Status
   });
 
@@ -65,7 +63,7 @@ export default function Assignments() {
       const newAssignment = await res.json();
       setAssignments(prev => [...prev, newAssignment]);
       setShowModal(false);
-      setFormData({ title: '', course: '', due: '', points: 10, status: 'todo' });
+      setFormData({ title: '', course: '', due: '', status: 'todo' });
     } catch (err) {
       setError('Failed to save assignment');
     } finally {
@@ -103,20 +101,14 @@ export default function Assignments() {
     .sort((a, b) => {
       if (sortBy === 'due') {
         return new Date(a.due).getTime() - new Date(b.due).getTime();
-      } else if (sortBy === 'points') {
-        return b.points - a.points;
       } else {
         return a.course.localeCompare(b.course);
       }
     });
 
-  const totalPoints = assignments.reduce((sum, a) => sum + (Number(a.points) || 0), 0);
-  const completedPoints = assignments
-    .filter((a) => a.status === 'done')
-    .reduce((sum, a) => sum + (Number(a.points) || 0), 0);
-  const inProgressPoints = assignments
-    .filter((a) => a.status === 'in_progress')
-    .reduce((sum, a) => sum + (Number(a.points) || 0), 0);
+  const totalAssignments = assignments.length;
+  const completedCount = assignments.filter((a) => a.status === 'done').length;
+  const inProgressCount = assignments.filter((a) => a.status === 'in_progress').length;
   const completionRate = assignments.length > 0 ? Math.round((assignments.filter(a => a.status === 'done').length / assignments.length) * 100) : 0;
 
   return (
@@ -151,9 +143,9 @@ export default function Assignments() {
             <div className="bg-white dark:bg-white/5 backdrop-blur-xl rounded-2xl p-4 border border-gray-200 dark:border-white/10 shadow-lg">
               <div className="flex items-center gap-2 mb-1">
                 <Target className="w-4 h-4 text-blue-400" />
-                <span className="text-xs text-sage-600 dark:text-gray-400">Total Points</span>
+                <span className="text-xs text-sage-600 dark:text-gray-400">Total Assignments</span>
               </div>
-              <p className="text-2xl font-bold text-sage-900 dark:text-white">{totalPoints}</p>
+              <p className="text-2xl font-bold text-sage-900 dark:text-white">{totalAssignments}</p>
             </div>
             
             <div className="bg-white dark:bg-white/5 backdrop-blur-xl rounded-2xl p-4 border border-gray-200 dark:border-white/10 shadow-lg">
@@ -161,7 +153,7 @@ export default function Assignments() {
                 <CheckCircle2 className="w-4 h-4 text-green-400" />
                 <span className="text-xs text-sage-600 dark:text-gray-400">Completed</span>
               </div>
-              <p className="text-2xl font-bold text-green-400">{completedPoints}</p>
+              <p className="text-2xl font-bold text-green-400">{completedCount}</p>
             </div>
             
             <div className="bg-white dark:bg-white/5 backdrop-blur-xl rounded-2xl p-4 border border-gray-200 dark:border-white/10 shadow-lg">
@@ -169,7 +161,7 @@ export default function Assignments() {
                 <Clock className="w-4 h-4 text-yellow-400" />
                 <span className="text-xs text-sage-600 dark:text-gray-400">In Progress</span>
               </div>
-              <p className="text-2xl font-bold text-yellow-400">{inProgressPoints}</p>
+              <p className="text-2xl font-bold text-yellow-400">{inProgressCount}</p>
             </div>
             
             <div className="bg-white dark:bg-white/5 backdrop-blur-xl rounded-2xl p-4 border border-gray-200 dark:border-white/10 shadow-lg">
@@ -213,7 +205,6 @@ export default function Assignments() {
               className="px-4 py-3 bg-white dark:bg-white/10 border border-sage-300 dark:border-white/20 rounded-xl text-sage-900 dark:text-white focus:outline-none transition-all"
             >
               <option value="due">Due Date</option>
-              <option value="points">Points</option>
               <option value="course">Course</option>
             </select>
           </div>
@@ -262,11 +253,7 @@ export default function Assignments() {
                       <Calendar size={12} />
                       <span>{new Date(assignment.due).toLocaleDateString()}</span>
                     </div>
-                    <div className="flex items-center gap-1">
-                      <Star size={12} />
-                      <span>{assignment.points} pts</span>
                     </div>
-                  </div>
                   
                   <div className="pt-2">
                     {assignment.status === 'todo' && (
@@ -370,7 +357,6 @@ export default function Assignments() {
                   />
                 </div>
 
-                <div className="grid grid-cols-2 gap-4">
                   <div>
                     <label className="block text-sm font-medium text-sage-600 dark:text-gray-400 mb-1">Due Date</label>
                     <input
@@ -381,22 +367,11 @@ export default function Assignments() {
                       className="w-full px-4 py-3 bg-white/5 border border-sage-200 dark:border-white/10 rounded-xl text-sage-900 dark:text-white outline-none focus:border-blue-500/50"
                     />
                   </div>
-                  <div>
-                    <label className="block text-sm font-medium text-sage-600 dark:text-gray-400 mb-1">Points</label>
-                    <input
-                      required
-                      type="number"
-                      value={formData.points}
-                      onChange={(e) => setFormData({...formData, points: parseInt(e.target.value)})}
-                      className="w-full px-4 py-3 bg-white/5 border border-sage-200 dark:border-white/10 rounded-xl text-sage-900 dark:text-white outline-none focus:border-blue-500/50"
-                    />
-                  </div>
-                </div>
 
                 <button
                   disabled={isSaving}
                   type="submit"
-                  className="w-full py-4 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-xl font-bold hover:from-blue-700 hover:to-purple-700 transition-all mt-4 shadow-lg"
+                  className="w-full py-4 bg-gradient-to-r from-sage-700 to-sage-800 text-white rounded-xl font-bold hover:from-sage-800 hover:to-sage-900 transition-all mt-4 shadow-lg"
                 >
                   {isSaving ? 'Creating...' : 'Create Assignment'}
                 </button>

@@ -14,16 +14,33 @@
     --sage-700: #527d72;
     --sage-800: #3d655d;
     --sage-900: #2d4f47;
+
+    /* Theme Variables */
+    --bg-page: #F5F5F0; /* Clean, subtle warm alabaster */
+    --bg-card: #FCFCFA; /* Very soft warm white for contrast */
+    --text-primary: #1A1A1A;
+    --text-secondary: #595959;
+    --border: #E5E5DF; /* Subtle warm border */
+    --accent: #8aaca5;
+  }
+
+  .dark {
+    --bg-page: #1A1817;
+    --bg-card: #242220;
+    --text-primary: #F8F7F6;
+    --text-secondary: #A3A19F;
+    --border: #2C2A28;
+    --accent: #8aaca5;
   }
 }
 
 @layer components {
   .card-editorial {
-    @apply bg-[#F8FAFC] dark:bg-[#242220] border border-slate-200 dark:border-white/10 rounded-2xl shadow-sm transition-colors duration-300;
+    @apply bg-[var(--bg-card)] dark:bg-[#242220] border border-[var(--border)] dark:border-white/10 rounded-2xl p-6 md:p-8 shadow-sm transition-colors duration-300;
   }
 
   .heading-editorial {
-    @apply text-4xl font-bold text-slate-800 dark:text-slate-100 mb-2;
+    @apply text-4xl font-bold text-[var(--text-primary)] dark:text-slate-100 mb-2;
   }
 
   .section-title {
@@ -46,7 +63,7 @@
 }
 
 ::-webkit-scrollbar-track {
-  background: #f8faf9;
+  background: var(--bg-page);
 }
 
 .dark ::-webkit-scrollbar-track {

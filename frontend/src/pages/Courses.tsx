@@ -14,7 +14,6 @@ type Course = {
   instructor: string;
   credits: number;
   progress: number;
-  points: number;
   syllabus: string[];
   description?: string;
   schedule?: string;
@@ -27,7 +26,7 @@ type Course = {
   status?: 'active' | 'completed' | 'archived';
 };
 
-type SortOption = 'progress' | 'title' | 'credits' | 'points' | 'rating' | 'recent';
+type SortOption = 'progress' | 'title' | 'credits' | 'rating' | 'recent';
 type FilterOption = 'all' | 'active' | 'completed' | 'archived';
 type ViewMode = 'grid' | 'list';
 
@@ -56,7 +55,6 @@ export default function Courses() {
     instructor: '',
     credits: 0,
     progress: 0,
-    points: 0,
     description: '',
     schedule: '',
     intensity: 'Core',
@@ -77,7 +75,6 @@ export default function Courses() {
         instructor: 'Dr. Smith',
         credits: 4,
         progress: 75,
-        points: 85,
         syllabus: ['Arrays', 'Linked Lists', 'Trees', 'Graphs'],
         description: 'Fundamental data structures and algorithms',
         schedule: 'Mon, Wed, Fri · 10:00 - 11:00',
@@ -97,7 +94,6 @@ export default function Courses() {
         instructor: 'Prof. Johnson',
         credits: 3,
         progress: 60,
-        points: 78,
         syllabus: ['SQL Basics', 'Normalization', 'Transactions'],
         description: 'Introduction to database management',
         schedule: 'Tue, Thu · 14:00 - 15:30',
@@ -158,8 +154,6 @@ export default function Courses() {
           return a.title.localeCompare(b.title);
         case 'credits':
           return b.credits - a.credits;
-        case 'points':
-          return b.points - a.points;
         case 'rating':
           return (b.rating || 0) - (a.rating || 0);
         case 'recent':
@@ -176,10 +170,9 @@ export default function Courses() {
     const total = courses.length;
     const avgProgress = total === 0 ? 0 : courses.reduce((sum, c) => sum + c.progress, 0) / total;
     const totalCredits = courses.reduce((sum, c) => sum + c.credits, 0);
-    const totalPoints = courses.reduce((sum, c) => sum + c.points, 0);
     const completed = courses.filter(c => c.status === 'completed' || c.progress === 100).length;
 
-    return { total, avgProgress, totalCredits, totalPoints, completed };
+    return { total, avgProgress, totalCredits, completed };
   }, [courses]);
 
   const filteredCourses = filteredAndSortedCourses;
@@ -198,7 +191,6 @@ export default function Courses() {
         intensity: form.intensity,
         credits: Number(form.credits),
         progress: Number(form.progress),
-        points: Number(form.points),
         syllabus: form.syllabus.split(',').map(s => s.trim()).filter(Boolean).length > 0
           ? form.syllabus.split(',').map(s => s.trim()).filter(Boolean)
           : ['General Topics'],
@@ -214,7 +206,10 @@ export default function Courses() {
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(courseData),
         });
-        if (!res.ok) throw new Error('Failed to update course');
+        if (!res.ok) {
+          const errorData = await res.json();
+          throw new Error(errorData.error || 'Failed to update course');
+        }
         setCourses(prev => prev.map(c => c.id === editingCourse.id ? { ...c, ...courseData } : c));
       } else {
         const res = await apiFetch('/api/courses', {
@@ -222,7 +217,10 @@ export default function Courses() {
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ ...courseData, id: Date.now().toString() }),
         });
-        if (!res.ok) throw new Error('Failed to create course');
+        if (!res.ok) {
+          const errorData = await res.json();
+          throw new Error(errorData.error || 'Failed to create course');
+        }
         const newCourse = await res.json();
         setCourses(prev => [...prev, { ...newCourse, id: newCourse._id || newCourse.id || newCourse.code }]);
       }
@@ -235,7 +233,6 @@ export default function Courses() {
         instructor: '',
         credits: 0,
         progress: 0,
-        points: 0,
         description: '',
         schedule: '',
         intensity: 'Core',
@@ -246,8 +243,8 @@ export default function Courses() {
         enrolled: 0,
         status: 'active',
       });
-    } catch (e) {
-      setError('Failed to save course. Please try again.');
+    } catch (e: any) {
+      setError(e.message || 'Failed to save course. Please try again.');
     }
   };
 
@@ -272,7 +269,6 @@ export default function Courses() {
       instructor: course.instructor,
       credits: course.credits,
       progress: course.progress,
-      points: course.points,
       description: course.description || '',
       schedule: course.schedule || '',
       intensity: course.intensity || 'Core',
@@ -430,7 +426,6 @@ export default function Courses() {
               <option value="progress">Sort by Progress</option>
               <option value="title">Sort by Title</option>
               <option value="credits">Sort by Credits</option>
-              <option value="points">Sort by Points</option>
               <option value="rating">Sort by Rating</option>
               <option value="recent">Sort by Recent</option>
             </select>
@@ -494,20 +489,16 @@ export default function Courses() {
                         </div>
                         <div className="w-full bg-white/10 rounded-full h-2">
                           <div
-                            className="bg-gradient-to-r from-blue-500 to-purple-500 h-2 rounded-full transition-all duration-500"
+                            className="bg-gradient-to-r from-sage-500 to-[#8aaca5] h-2 rounded-full transition-all duration-500"
                             style={{ width: `${course.progress}%` }}
                           />
                         </div>
                       </div>
 
                       <div className="grid grid-cols-2 gap-4 text-sm mt-3 mb-3">
-                        <div className="flex justify-between">
+                        <div className="flex justify-between col-span-2">
                           <span className="text-sage-600 dark:text-gray-300">Credits</span>
                           <span className="text-sage-900 dark:text-white font-medium">{course.credits}</span>
-                        </div>
-                        <div className="flex justify-between">
-                          <span className="text-sage-600 dark:text-gray-300">Points</span>
-                          <span className="text-sage-900 dark:text-white font-medium">{course.points}</span>
                         </div>
                       </div>
 
@@ -594,7 +585,7 @@ export default function Courses() {
             {!searchTerm && (
               <button
                 onClick={() => setShowAddForm(true)}
-                className="px-6 py-3 bg-gradient-to-r from-blue-600 to-purple-600 text-sage-900 dark:text-white rounded-lg hover:from-blue-700 hover:to-purple-700 transition-all duration-200 shadow-lg hover:shadow-xl"
+                className="px-6 py-3 bg-gradient-to-r from-sage-700 to-sage-800 text-white rounded-lg hover:from-sage-800 hover:to-sage-900 transition-all duration-200 shadow-lg hover:shadow-xl"
               >
                 Add Your First Course
               </button>
@@ -662,7 +653,7 @@ export default function Courses() {
                             </div>
                             <div className="w-full bg-white/10 rounded-full h-2">
                               <div
-                                className="bg-gradient-to-r from-blue-500 to-purple-500 h-2 rounded-full transition-all duration-500"
+                                className="bg-gradient-to-r from-sage-500 to-[#8aaca5] h-2 rounded-full transition-all duration-500"
                                 style={{ width: `${selectedCourse.progress}%` }}
                               />
                             </div>
@@ -682,14 +673,10 @@ export default function Courses() {
                           </div>
                         </div>
 
-                        <div className="grid grid-cols-2 gap-4 text-sm bg-white/5 p-4 rounded-xl">
+                        <div className="grid grid-cols-1 gap-4 text-sm bg-white/5 p-4 rounded-xl">
                           <div className="space-y-1">
                             <span className="text-sage-600 dark:text-gray-400 block text-xs uppercase tracking-wider">Credits</span>
                             <span className="text-sage-900 dark:text-white font-bold text-lg">{selectedCourse.credits}</span>
-                          </div>
-                          <div className="space-y-1">
-                            <span className="text-sage-600 dark:text-gray-400 block text-xs uppercase tracking-wider">Points</span>
-                            <span className="text-sage-900 dark:text-white font-bold text-lg">{selectedCourse.points}</span>
                           </div>
                         </div>
                       </div>
@@ -775,7 +762,6 @@ export default function Courses() {
                         instructor: '',
                         credits: 0,
                         progress: 0,
-                        points: 0,
                         description: '',
                         schedule: '',
                         intensity: 'Core',
@@ -802,7 +788,6 @@ export default function Courses() {
                         <label className="block text-sm font-medium text-sage-600 dark:text-gray-300 mb-2">Course Code</label>
                         <input
                           type="text"
-                          required
                           value={form.code}
                           onChange={(e) => setForm({ ...form, code: e.target.value })}
                           className="w-full px-4 py-3 bg-white/10 border border-sage-300 dark:border-white/20 rounded-lg text-sage-900 dark:text-white focus:outline-none focus:border-blue-400/50 transition-colors"
@@ -813,7 +798,6 @@ export default function Courses() {
                         <label className="block text-sm font-medium text-sage-600 dark:text-gray-300 mb-2">Course Title</label>
                         <input
                           type="text"
-                          required
                           value={form.title}
                           onChange={(e) => setForm({ ...form, title: e.target.value })}
                           className="w-full px-4 py-3 bg-white/10 border border-sage-300 dark:border-white/20 rounded-lg text-sage-900 dark:text-white focus:outline-none focus:border-blue-400/50 transition-colors"
@@ -824,7 +808,6 @@ export default function Courses() {
                         <label className="block text-sm font-medium text-sage-600 dark:text-gray-300 mb-2">Instructor</label>
                         <input
                           type="text"
-                          required
                           value={form.instructor}
                           onChange={(e) => setForm({ ...form, instructor: e.target.value })}
                           className="w-full px-4 py-3 bg-white/10 border border-sage-300 dark:border-white/20 rounded-lg text-sage-900 dark:text-white focus:outline-none focus:border-blue-400/50 transition-colors"
@@ -864,9 +847,8 @@ export default function Courses() {
                         <label className="block text-sm font-medium text-sage-600 dark:text-gray-300 mb-2">Credits</label>
                         <input
                           type="number"
-                          required
-                          min="1"
-                          max="10"
+                          min="0"
+                          max="100"
                           value={form.credits}
                           onChange={(e) => setForm({ ...form, credits: Number(e.target.value) })}
                           className="w-full px-4 py-3 bg-white/10 border border-sage-300 dark:border-white/20 rounded-lg text-sage-900 dark:text-white focus:outline-none focus:border-blue-400/50 transition-colors"
@@ -877,7 +859,6 @@ export default function Courses() {
                         <label className="block text-sm font-medium text-sage-600 dark:text-gray-300 mb-2">Progress (%)</label>
                         <input
                           type="number"
-                          required
                           min="0"
                           max="100"
                           value={form.progress}
@@ -886,17 +867,6 @@ export default function Courses() {
                         />
                       </div>
 
-                      <div>
-                        <label className="block text-sm font-medium text-sage-600 dark:text-gray-300 mb-2">Points</label>
-                        <input
-                          type="number"
-                          required
-                          min="0"
-                          value={form.points}
-                          onChange={(e) => setForm({ ...form, points: Number(e.target.value) })}
-                          className="w-full px-4 py-3 bg-white/10 border border-sage-300 dark:border-white/20 rounded-lg text-sage-900 dark:text-white focus:outline-none focus:border-blue-400/50 transition-colors"
-                        />
-                      </div>
 
 
                       <div>
@@ -978,7 +948,6 @@ export default function Courses() {
                           instructor: '',
                           credits: 0,
                           progress: 0,
-                          points: 0,
                           description: '',
                           schedule: '',
                           intensity: 'Core',
@@ -996,7 +965,7 @@ export default function Courses() {
                     </button>
                     <button
                       type="submit"
-                      className="flex-1 px-6 py-3 bg-gradient-to-r from-blue-600 to-purple-600 text-sage-900 dark:text-white rounded-lg hover:from-blue-700 hover:to-purple-700 transition-all duration-200 shadow-lg hover:shadow-xl"
+                      className="flex-1 px-6 py-3 bg-gradient-to-r from-sage-700 to-sage-800 text-white rounded-lg hover:from-sage-800 hover:to-sage-900 transition-all duration-200 shadow-lg hover:shadow-xl"
                     >
                       {editingCourse ? 'Update Course' : 'Add Course'}
                     </button>

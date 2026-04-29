@@ -33,11 +33,13 @@ export default function Sidebar({ isCollapsed, setIsCollapsed }: SidebarProps) {
           className="flex items-center gap-2"
         >
           {!isCollapsed && (
-            <div className="flex items-center gap-2">
-              <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-blue-500 to-purple-600 flex-shrink-0" />
+            <div className="flex items-center gap-2.5">
+              <div className="w-9 h-9 rounded-xl bg-sage-900 flex-shrink-0 flex items-center justify-center shadow-sm shadow-sage-900/20">
+                <BookOpen size={20} className="text-white" />
+              </div>
               <div className="flex flex-col">
-                <span className="font-bold text-sage-900 dark:text-white text-lg transition-colors duration-300 leading-none">StudyFlow</span>
-                <span className="text-[10px] text-blue-500 font-medium mt-0.5 whitespace-nowrap">Hi, {profile.name.split(' ')[0]} 👋</span>
+                <span className="font-serif italic font-bold tracking-tight text-sage-900 dark:text-white text-xl transition-colors duration-300 leading-none">StudyFlow</span>
+                <span className="text-[10px] text-sage-600 dark:text-sage-400 font-medium mt-0.5 whitespace-nowrap">Hi, {profile.name.split(' ')[0]} 👋</span>
               </div>
             </div>
           )}
@@ -86,7 +88,7 @@ export default function Sidebar({ isCollapsed, setIsCollapsed }: SidebarProps) {
 
       <div className="p-3 border-t border-sage-200 dark:border-gray-800 space-y-2">
         <div className="w-full flex items-center gap-3 px-3 py-2 rounded-lg transition-colors duration-300">
-          <div className="w-8 h-8 rounded-full flex-shrink-0 bg-gradient-to-br from-blue-400 to-purple-500 overflow-hidden flex items-center justify-center">
+          <div className="w-8 h-8 rounded-full flex-shrink-0 bg-sage-200 dark:bg-sage-800 overflow-hidden flex items-center justify-center">
             {profile.avatarUrl ? (
               <img src={profile.avatarUrl} alt="Avatar" className="w-full h-full object-cover" />
             ) : (

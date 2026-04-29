@@ -10,7 +10,7 @@ import Grades from './pages/Grades';
 import Settings from './pages/Settings';
 import About from './pages/About';
 import Schedule from './components/Schedule';
-import AuthGateway from './components/AuthGateway';
+import Login from './pages/Login';
 import { useAppContext } from './context/AppContext';
 import { ProtectedRoute } from './components/ProtectedRoute';
 
@@ -68,7 +68,7 @@ function MainLayout() {
   const marginClass = isSidebarCollapsed ? "ml-20" : "ml-64";
 
   return (
-    <div className="min-h-screen flex bg-white dark:bg-[#1A1817] transition-colors duration-300 relative">
+    <div className="min-h-screen flex bg-[var(--bg-page)] dark:bg-[#1A1817] transition-colors duration-300 relative">
       <div className="fixed inset-0 pointer-events-none z-0">
         <div className="absolute inset-0 dark:hidden" style={{ backgroundImage: "radial-gradient(#E2E8F0 1px, transparent 1px)", backgroundSize: "24px 24px" }}></div>
         <div className="absolute inset-0 hidden dark:block" style={{ backgroundImage: "radial-gradient(#2C2A28 1px, transparent 1px)", backgroundSize: "24px 24px" }}></div>
@@ -126,8 +126,8 @@ function App() {
       {isAuthPage ? (
         <div className="flex min-h-screen bg-sage-50 dark:bg-[#1A1817] transition-colors duration-300 w-full">
           <Routes>
-            <Route path="/login" element={<AuthGateway />} />
-            <Route path="/signup" element={<AuthGateway />} />
+            <Route path="/login" element={<Login />} />
+            <Route path="/signup" element={<Login />} />
           </Routes>
         </div>
       ) : (

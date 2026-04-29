@@ -58,11 +58,11 @@ const fallbackStats: Stat[] = [
   },
   {
     icon: 'Trophy',
-    label: 'Total Points',
-    value: '2,450',
+    label: 'Total Sessions',
+    value: '42',
     color: 'from-yellow-500 to-orange-500',
     bgColor: 'bg-yellow-500/10',
-    change: '+180 this week',
+    change: '+3 this week',
   },
   {
     icon: 'Flame',
@@ -76,7 +76,7 @@ const fallbackStats: Stat[] = [
     icon: 'Clock',
     label: 'Avg Session',
     value: '45 min',
-    color: 'from-blue-500 to-cyan-500',
+    color: 'from-sage-500 to-sage-700',
     bgColor: 'bg-blue-500/10',
     change: '+5 min',
   },
@@ -141,59 +141,6 @@ function avgSessionMinutesInRange(sessions: SessionEntry[], start: Date, endExcl
   return count === 0 ? 0 : sum / count;
 }
 
-function pointsForAttendance(e: AttendanceEntry) {
-  if (e.status === 'present') return 10;
-  if (e.status === 'late') return 5;
-  return 0;
-}
-
-function pointsForSession(s: SessionEntry) {
-  const minutes = Number(s.minutes) || 0;
-  return minutes / 5;
-}
-
-function pointsForDeadline(d: DeadlineEntry) {
-  // Reward planning ahead: bigger reward if created >=24h before due date.
-  const dueMs = new Date(d.dueDate).getTime();
-  const createdMs = d.createdAt ? new Date(d.createdAt).getTime() : Number.NaN;
-  if (Number.isNaN(dueMs) || Number.isNaN(createdMs)) return 0;
-  if (createdMs < dueMs - 24 * 60 * 60 * 1000) return 20;
-  if (createdMs < dueMs) return 5;
-  return 0;
-}
-
-function sumPointsInRange(
-  attendance: AttendanceEntry[],
-  sessions: SessionEntry[],
-  deadlines: DeadlineEntry[],
-  start: Date,
-  endExclusive: Date
-) {
-  const startMs = start.getTime();
-  const endMs = endExclusive.getTime();
-
-  const attendancePoints = attendance.reduce((acc, e) => {
-    const t = parseDateKey(e.date).getTime();
-    if (t >= startMs && t < endMs) return acc + pointsForAttendance(e);
-    return acc;
-  }, 0);
-
-  const sessionPoints = sessions.reduce((acc, s) => {
-    const t = new Date(s.createdAt).getTime();
-    if (Number.isNaN(t)) return acc;
-    if (t >= startMs && t < endMs) return acc + pointsForSession(s);
-    return acc;
-  }, 0);
-
-  const deadlinePoints = deadlines.reduce((acc, d) => {
-    const t = d.createdAt ? new Date(d.createdAt).getTime() : Number.NaN;
-    if (Number.isNaN(t)) return acc;
-    if (t >= startMs && t < endMs) return acc + pointsForDeadline(d);
-    return acc;
-  }, 0);
-
-  return attendancePoints + sessionPoints + deadlinePoints;
-}
 
 export default function QuickStats() {
   const [stats, setStats] = useState<Stat[]>(fallbackStats);
@@ -228,10 +175,8 @@ export default function QuickStats() {
         const streakWeekAgo = computeStreak(attendance, dateKey(weekAgo));
         const streakDelta = streakToday - streakWeekAgo;
 
-        // Points (all time + weekly delta)
-        const totalPoints = Math.round(
-          sumPointsInRange(attendance, sessions, deadlines, new Date(0), new Date('2999-01-01T00:00:00'))
-        );
+        // Total Sessions (all time + weekly delta)
+        const totalSessions = sessions.length;
 
         const last7Start = new Date(today);
         last7Start.setDate(last7Start.getDate() - 6); // inclusive 7-day window: today..6 days back
@@ -241,9 +186,15 @@ export default function QuickStats() {
         const prev7Start = new Date(last7Start);
         prev7Start.setDate(prev7Start.getDate() - 7);
 
-        const last7Points = Math.round(sumPointsInRange(attendance, sessions, deadlines, last7Start, nextDay));
-        const prev7Points = Math.round(sumPointsInRange(attendance, sessions, deadlines, prev7Start, last7Start));
-        const pointsDelta = last7Points - prev7Points;
+        const last7Sessions = sessions.filter(s => {
+          const t = new Date(s.createdAt).getTime();
+          return t >= last7Start.getTime() && t < nextDay.getTime();
+        }).length;
+        const prev7Sessions = sessions.filter(s => {
+          const t = new Date(s.createdAt).getTime();
+          return t >= prev7Start.getTime() && t < last7Start.getTime();
+        }).length;
+        const sessionsDelta = last7Sessions - prev7Sessions;
 
         // Study hours (last 7 days + delta vs previous 7)
         const last7Minutes = sumSessionMinutesInRange(sessions, last7Start, nextDay);
@@ -271,11 +222,11 @@ export default function QuickStats() {
           },
           {
             icon: 'Trophy',
-            label: 'Total Points',
-            value: formatNumber(totalPoints),
+            label: 'Total Sessions',
+            value: formatNumber(totalSessions),
             color: 'from-yellow-500 to-orange-500',
             bgColor: 'bg-yellow-500/10',
-            change: pointsDelta > 0 ? `+${pointsDelta} this week` : pointsDelta < 0 ? `${pointsDelta} this week` : 'Stable',
+            change: sessionsDelta > 0 ? `+${sessionsDelta} this week` : sessionsDelta < 0 ? `${sessionsDelta} this week` : 'Stable',
           },
           {
             icon: 'Flame',
@@ -289,7 +240,7 @@ export default function QuickStats() {
             icon: 'Clock',
             label: 'Avg Session',
             value: formatMinutes(Math.max(0, last30Avg)),
-            color: 'from-blue-500 to-cyan-500',
+            color: 'from-sage-500 to-sage-700',
             bgColor: 'bg-blue-500/10',
             change: avgDelta > 0 ? `+${Math.round(avgDelta)} min` : avgDelta < 0 ? `${Math.round(avgDelta)} min` : 'Consistent',
           },

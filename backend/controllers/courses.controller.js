@@ -4,24 +4,15 @@ function sanitizeCoursePayload(input, options = {}) {
   const { partial = false } = options;
   const output = {};
 
-  const requireString = (key) => {
-    if (input[key] == null) {
-      if (!partial) {
-        throw new Error(`${key} is required`);
-      }
+  const optionalString = (key) => {
+    if (input[key] == null || (typeof input[key] === 'string' && !input[key].trim())) {
       return;
-    }
-    if (typeof input[key] !== 'string' || !input[key].trim()) {
-      throw new Error(`${key} must be a non-empty string`);
     }
     output[key] = input[key].trim();
   };
 
-  const requireNumber = (key, { min = 0, max = Number.POSITIVE_INFINITY } = {}) => {
-    if (input[key] == null) {
-      if (!partial) {
-        throw new Error(`${key} is required`);
-      }
+  const optionalNumber = (key, { min = 0, max = Number.POSITIVE_INFINITY } = {}) => {
+    if (input[key] == null || input[key] === '') {
       return;
     }
     const numericValue = Number(input[key]);
@@ -31,43 +22,33 @@ function sanitizeCoursePayload(input, options = {}) {
     output[key] = numericValue;
   };
 
-  requireString('code');
-  requireString('title');
-  requireString('instructor');
-  requireNumber('credits', { min: 1, max: 12 });
-  requireNumber('progress', { min: 0, max: 100 });
-  requireNumber('points', { min: 0 });
+  optionalString('code');
+  optionalString('title');
+  optionalString('instructor');
+  optionalNumber('credits', { min: 0, max: 12 });
+  optionalNumber('progress', { min: 0, max: 100 });
 
-  if (input.syllabus != null || !partial) {
+
+  if (input.syllabus != null) {
     const syllabus = Array.isArray(input.syllabus) 
       ? input.syllabus.map((item) => (typeof item === 'string' ? item.trim() : '')).filter(Boolean)
-      : [];
-    if (!syllabus.length) {
-      throw new Error('syllabus must contain at least one topic');
-    }
+      : (typeof input.syllabus === 'string' ? input.syllabus.split(',').map(s => s.trim()).filter(Boolean) : []);
     output.syllabus = syllabus;
   }
 
-  if (input.description != null) {
-    if (typeof input.description !== 'string' || !input.description.trim()) {
-      throw new Error('description must be a non-empty string');
-    }
+  if (input.description != null && typeof input.description === 'string' && input.description.trim()) {
     output.description = input.description.trim();
   }
 
-  if (input.schedule != null) {
-    if (typeof input.schedule !== 'string' || !input.schedule.trim()) {
-      throw new Error('schedule must be a non-empty string');
-    }
+  if (input.schedule != null && typeof input.schedule === 'string' && input.schedule.trim()) {
     output.schedule = input.schedule.trim();
   }
 
   if (input.intensity != null) {
     const allowedIntensity = ['Core', 'Lab', 'Elective'];
-    if (!allowedIntensity.includes(input.intensity)) {
-      throw new Error(`intensity must be one of ${allowedIntensity.join(', ')}`);
+    if (allowedIntensity.includes(input.intensity)) {
+      output.intensity = input.intensity;
     }
-    output.intensity = input.intensity;
   }
 
   if (input.accent != null) {
@@ -99,14 +80,16 @@ export const createCourse = async (req, res) => {
   try {
     const payload = sanitizeCoursePayload(req.body ?? {});
     
-    // Check if course code exists for THIS user
-    const existing = await Course.findOne({ 
-      userId: req.user._id,
-      code: { $regex: new RegExp(`^${payload.code}$`, 'i') } 
-    });
+    // Check if course code exists for THIS user (only if code is provided)
+    if (payload.code) {
+      const existing = await Course.findOne({ 
+        userId: req.user._id,
+        code: { $regex: new RegExp(`^${payload.code}$`, 'i') } 
+      });
 
-    if (existing) {
-      return res.status(409).json({ error: `Course code "${payload.code}" already exists` });
+      if (existing) {
+        return res.status(409).json({ error: `Course code "${payload.code}" already exists` });
+      }
     }
 
     const newCourse = await Course.create({

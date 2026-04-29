@@ -4,10 +4,10 @@ const courseSchema = new mongoose.Schema(
   {
     userId: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true, index: true },
     legacyId: { type: String },
-    code: { type: String, required: true },
-    title: { type: String, required: true },
+    code: { type: String, index: true },
+    title: { type: String },
     instructor: { type: String },
-    credits: { type: Number, required: true },
+    credits: { type: Number, default: 0 },
     progress: { type: Number, default: 0 },
     points: { type: Number, default: 0 },
     syllabus: [{ type: String }],
