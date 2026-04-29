@@ -1,6 +1,6 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useAppContext } from '../context/AppContext';
-import { Play, Pause, RotateCcw, Plus, Loader2 } from 'lucide-react';
+import { Play, Pause, RotateCcw, Plus, Loader2, CheckCircle2, Circle } from 'lucide-react';
 import { apiFetch } from '../utils/api';
 import StudyAssistantBot from '../components/StudyAssistantBot';
 import QuickNotes from '../components/QuickNotes';
@@ -56,6 +56,44 @@ export default function Dashboard({ onDeepWorkToggle }: DashboardProps) {
   const [deadlineDate, setDeadlineDate] = useState("");
   const [deadlinePriority, setDeadlinePriority] = useState("Medium");
   const [isAddingDeadline, setIsAddingDeadline] = useState(false);
+
+  // --- Live Clock State ---
+  const [now, setNow] = useState(new Date());
+  useEffect(() => {
+    const tick = setInterval(() => setNow(new Date()), 1000);
+    return () => clearInterval(tick);
+  }, []);
+
+  // --- Quote of the Day ---
+  const quotes = [
+    { text: "The secret of getting ahead is getting started.", author: "Mark Twain" },
+    { text: "It always seems impossible until it's done.", author: "Nelson Mandela" },
+    { text: "Don't watch the clock; do what it does. Keep going.", author: "Sam Levenson" },
+    { text: "The beautiful thing about learning is nobody can take it from you.", author: "B.B. King" },
+    { text: "Success is the sum of small efforts, repeated day in and day out.", author: "Robert Collier" },
+    { text: "Believe you can and you're halfway there.", author: "Theodore Roosevelt" },
+    { text: "Start where you are. Use what you have. Do what you can.", author: "Arthur Ashe" },
+    { text: "An investment in knowledge pays the best interest.", author: "Benjamin Franklin" },
+    { text: "Education is the passport to the future.", author: "Malcolm X" },
+    { text: "The more that you read, the more things you will know.", author: "Dr. Seuss" },
+    { text: "You don't have to be great to start, but you have to start to be great.", author: "Zig Ziglar" },
+    { text: "Learning never exhausts the mind.", author: "Leonardo da Vinci" },
+    { text: "The expert in anything was once a beginner.", author: "Helen Hayes" },
+    { text: "Push yourself, because no one else is going to do it for you.", author: "Unknown" },
+  ];
+  const todayIndex = Math.floor(new Date().getTime() / (1000 * 60 * 60 * 24)) % quotes.length;
+  const todayQuote = quotes[todayIndex];
+
+  // --- Today's Task ---
+  const [todayTask, setTodayTask] = useState(() => localStorage.getItem('dashboard_today_task') || '');
+  const [taskDone, setTaskDone] = useState(() => localStorage.getItem('dashboard_task_done') === 'true');
+  const taskInputRef = useRef<HTMLInputElement>(null);
+  useEffect(() => {
+    localStorage.setItem('dashboard_today_task', todayTask);
+  }, [todayTask]);
+  useEffect(() => {
+    localStorage.setItem('dashboard_task_done', String(taskDone));
+  }, [taskDone]);
 
   useEffect(() => {
     let interval: NodeJS.Timeout;
@@ -226,50 +264,118 @@ export default function Dashboard({ onDeepWorkToggle }: DashboardProps) {
               Welcome back, {profile?.name?.split(' ')[0] || 'Student'}.
             </h1>
 
-            {/* Top Atmospheric Foyer Row (4 Cards) */}
+            {/* Top 4-Card Row */}
             <div className="grid grid-cols-2 lg:grid-cols-4 gap-6">
 
-              {/* Card 1 — The Archive */}
-              <div className="bg-white dark:bg-[#242220] border border-slate-200 dark:border-white/10 rounded-2xl p-6 flex flex-col justify-between">
-                <p className="text-xs uppercase tracking-widest font-sans text-slate-500">Daily Ephemera</p>
-                <div className="mt-4">
-                  <p className="font-serif text-slate-800 dark:text-slate-100 text-xl lg:text-2xl leading-snug mt-2">"The obstacle is the way."</p>
-                  <p className="text-sm text-slate-500 mt-2 italic font-serif">— Marcus Aurelius</p>
+              {/* Card 1 — Mini Calendar */}
+              <div className="bg-white dark:bg-[#242220] border border-slate-200 dark:border-white/10 rounded-2xl overflow-hidden min-h-[160px] flex flex-col">
+                {/* Calendar header */}
+                <div className="bg-[#2d4f47] px-4 py-2 flex items-center justify-between">
+                  <span className="text-xs font-semibold uppercase tracking-widest text-white/70 font-sans">
+                    {now.toLocaleDateString('en-US', { month: 'long' })}
+                  </span>
+                  <span className="text-xs font-semibold text-white/70 font-sans">{now.getFullYear()}</span>
+                </div>
+                {/* Day names */}
+                <div className="grid grid-cols-7 px-3 pt-2 pb-1">
+                  {['S','M','T','W','T','F','S'].map((d, i) => (
+                    <div key={i} className="text-center text-[9px] font-bold uppercase tracking-wide text-slate-400">{d}</div>
+                  ))}
+                </div>
+                {/* Days grid */}
+                <div className="grid grid-cols-7 px-3 pb-3 gap-y-0.5 flex-1">
+                  {(() => {
+                    const year = now.getFullYear();
+                    const month = now.getMonth();
+                    const firstDay = new Date(year, month, 1).getDay();
+                    const daysInMonth = new Date(year, month + 1, 0).getDate();
+                    const today = now.getDate();
+                    const cells = [];
+                    for (let i = 0; i < firstDay; i++) cells.push(<div key={`e${i}`} />);
+                    for (let d = 1; d <= daysInMonth; d++) {
+                      const isToday = d === today;
+                      cells.push(
+                        <div key={d} className={`text-center text-[10px] font-medium rounded-full w-5 h-5 mx-auto flex items-center justify-center transition-colors ${
+                          isToday ? 'bg-[#2d4f47] text-white font-bold' : 'text-slate-600 dark:text-slate-300'
+                        }`}>
+                          {d}
+                        </div>
+                      );
+                    }
+                    return cells;
+                  })()}
+                </div>
+                <div className="px-4 pb-2">
+                  <p className="text-[10px] text-slate-400 font-sans">{now.toLocaleDateString('en-US', { weekday: 'long' })}</p>
                 </div>
               </div>
 
-              {/* Card 2 — The Soundscape */}
-              <div className="bg-white dark:bg-[#242220] border border-slate-200 dark:border-white/10 rounded-2xl p-6 flex flex-col justify-between">
-                <p className="text-xs uppercase tracking-widest font-sans text-slate-500">Sonic Environment</p>
-                <div className="mt-4">
-                  <p className="font-serif text-slate-800 dark:text-slate-100 text-xl lg:text-2xl mt-2">Autumn Jazz & Rain</p>
-                  <p className="text-sm text-slate-500 mt-1 font-sans">Audio queued for deep focus.</p>
-                  <div className="border-b border-[#B89B72]/50 w-1/3 mt-3"></div>
+              {/* Card 2 — Live Clock */}
+              <div className="bg-white dark:bg-[#242220] border border-slate-200 dark:border-white/10 rounded-2xl p-5 flex flex-col items-center justify-center min-h-[160px]">
+                <p className="text-xs uppercase tracking-widest font-sans text-slate-500 self-start mb-1">Current Time</p>
+                <div className="text-center mt-2">
+                  <p className="text-3xl font-bold font-mono text-slate-800 dark:text-slate-100 tracking-tight tabular-nums">
+                    {now.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: true })}
+                  </p>
+                  <p className="text-xs text-slate-400 mt-2 font-sans">
+                    {Intl.DateTimeFormat().resolvedOptions().timeZone}
+                  </p>
                 </div>
               </div>
 
-              {/* Card 3 — The Lexicon */}
-              <div className="bg-white dark:bg-[#242220] border border-slate-200 dark:border-white/10 rounded-2xl p-6 flex flex-col justify-between">
-                <p className="text-xs uppercase tracking-widest font-sans text-slate-500">The Lexicon</p>
-                <div className="mt-4">
-                  <p className="font-serif text-slate-800 dark:text-slate-100 text-xl lg:text-2xl mt-2">Sonder (n.)</p>
-                  <p className="text-sm text-slate-500 mt-1 font-sans leading-relaxed">The realization that every passerby has a life as vivid as your own.</p>
-                  <div className="border-b border-[#4E7F65]/50 w-1/3 mt-3"></div>
+              {/* Card 3 — Quote of the Day */}
+              <div className="bg-white dark:bg-[#242220] border border-slate-200 dark:border-white/10 rounded-2xl p-5 flex flex-col justify-between min-h-[160px]">
+                <p className="text-xs uppercase tracking-widest font-sans text-slate-500">Quote of the Day</p>
+                <div className="mt-3 flex-1">
+                  <p className="font-serif text-slate-800 dark:text-slate-100 text-sm leading-snug">
+                    "{todayQuote.text}"
+                  </p>
+                  <p className="text-xs text-[#8aaca5] mt-2 italic font-serif">— {todayQuote.author}</p>
                 </div>
+                <div className="border-b border-[#B89B72]/40 w-1/3 mt-3" />
               </div>
 
-              {/* Card 4 — The Ritual */}
-              <div className="bg-white dark:bg-[#242220] border border-slate-200 dark:border-white/10 rounded-2xl p-6 flex flex-col justify-between">
-                <p className="text-xs uppercase tracking-widest font-sans text-slate-500">Mindful Moment</p>
-                <div className="mt-4">
-                  <p className="font-serif text-slate-800 dark:text-slate-100 text-xl lg:text-2xl mt-2">Rest your eyes.</p>
-                  <p className="text-sm text-slate-500 mt-1 font-sans">Look at something 20 feet away.</p>
-                  <div className="border-b border-[#8C4A4A]/50 w-1/3 mt-3"></div>
+              {/* Card 4 — Today's Focus Task */}
+              <div className="bg-white dark:bg-[#242220] border border-slate-200 dark:border-white/10 rounded-2xl p-5 flex flex-col justify-between min-h-[160px]">
+                <p className="text-xs uppercase tracking-widest font-sans text-slate-500">Today's Focus</p>
+                <div className="flex-1 flex flex-col justify-center mt-3">
+                  {taskDone !== undefined && todayTask && taskDone !== null && localStorage.getItem('dashboard_task_confirmed') === 'true' ? (
+                    <div className="flex items-start gap-2">
+                      <button onClick={() => setTaskDone(d => !d)} className="mt-0.5 flex-shrink-0 text-[#8aaca5] hover:text-[#4E7F65] transition-colors">
+                        {taskDone ? <CheckCircle2 size={18} /> : <Circle size={18} />}
+                      </button>
+                      <p
+                        onClick={() => { setTodayTask(''); setTaskDone(false); localStorage.setItem('dashboard_task_confirmed', 'false'); }}
+                        className={`font-serif text-sm leading-snug cursor-pointer transition-all ${taskDone ? 'line-through text-slate-400' : 'text-slate-800 dark:text-slate-100'}`}
+                        title="Click to clear and rewrite"
+                      >
+                        {todayTask}
+                      </p>
+                    </div>
+                  ) : (
+                    <form onSubmit={e => { e.preventDefault(); if (todayTask.trim()) localStorage.setItem('dashboard_task_confirmed', 'true'); }} className="flex flex-col gap-2">
+                      <input
+                        ref={taskInputRef}
+                        type="text"
+                        placeholder="Set your one goal for today..."
+                        value={todayTask}
+                        onChange={e => setTodayTask(e.target.value)}
+                        className="w-full bg-transparent font-serif text-sm text-slate-800 dark:text-slate-100 placeholder-slate-400 outline-none border-b border-slate-200 dark:border-white/10 pb-1 focus:border-[#8aaca5] transition-colors"
+                      />
+                      {todayTask && (
+                        <button type="submit" className="self-start text-[10px] uppercase tracking-widest font-semibold text-[#8aaca5] hover:text-[#4E7F65] transition-colors mt-1">
+                          Set goal ↵
+                        </button>
+                      )}
+                    </form>
+                  )}
                 </div>
+                <div className="border-b border-[#4E7F65]/40 w-1/3 mt-3" />
               </div>
 
             </div>
           </section>
+
 
           {/* Manual Attendance Tracker */}
           <section>
@@ -304,7 +410,7 @@ export default function Dashboard({ onDeepWorkToggle }: DashboardProps) {
                           {course.title || course.code}
                         </div>
                         
-                        {/* Column 2: Visuals */}
+                        {/* Column 2: Progress bar */}
                         <div className="flex items-center gap-3">
                           <div className="w-full bg-slate-200 dark:bg-slate-700 h-1 rounded-full overflow-hidden flex-1">
                             <div className="bg-[#4E7F65] h-full rounded-full transition-all duration-500" style={{ width: `${percentage}%` }}></div>
@@ -312,7 +418,7 @@ export default function Dashboard({ onDeepWorkToggle }: DashboardProps) {
                           <span className={`text-sm font-semibold text-muted min-w-[40px] text-right`}>{percentage}%</span>
                         </div>
 
-                        {/* Column 3: Attendance Ratio */}
+                        {/* Column 3: Ratio */}
                         <div className={`text-xs uppercase tracking-widest font-semibold text-center text-muted`}>
                           {attended} / {total}
                         </div>
@@ -339,6 +445,7 @@ export default function Dashboard({ onDeepWorkToggle }: DashboardProps) {
               </div>
             )}
           </section>
+
 
           {/* Activity & Deadlines */}
           <section>
