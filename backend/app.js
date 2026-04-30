@@ -41,6 +41,7 @@ app.use("/api/notes", requireAuth, notesRoutes);
 
 app.use(express.static(path.join(__dirname, "../frontend/public")));
 app.use(express.static(path.join(__dirname, "../frontend/dist")));
+app.use("/uploads", express.static(path.join(__dirname, "public/uploads")));
 
 app.get("*", (req, res) => {
   res.sendFile(path.join(__dirname, "../frontend/dist", "index.html"));

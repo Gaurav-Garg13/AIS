@@ -42,7 +42,8 @@ router.post("/avatar", requireAuth, upload.single("avatar"), async (req, res) =>
       return res.status(400).json({ error: "No file uploaded" });
     }
     
-    const avatarUrl = `/uploads/avatars/${req.file.filename}`;
+    const baseUrl = req.protocol + '://' + req.get('host');
+    const avatarUrl = `${baseUrl}/uploads/avatars/${req.file.filename}`;
     
     const user = await User.findByIdAndUpdate(
       req.user._id,
@@ -63,11 +64,17 @@ router.get("/", requireAuth, async (req, res) => {
     let profile = await Profile.findOne({ userId: req.user._id });
     if (!profile) profile = {};
 
+    const baseUrl = req.protocol + '://' + req.get('host');
+    let avatarUrl = user.avatarUrl;
+    if (avatarUrl && avatarUrl.startsWith('/uploads')) {
+      avatarUrl = `${baseUrl}${avatarUrl}`;
+    }
+
     res.json({
       name: user.name,
       email: user.email,
       phone: user?.phone || "",
-      avatarUrl: user.avatarUrl,
+      avatarUrl: avatarUrl,
       theme: profile.theme || "dark",
       notificationPrefs: profile.notificationPrefs
     });
