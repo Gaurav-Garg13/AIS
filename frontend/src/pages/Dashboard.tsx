@@ -1,3 +1,4 @@
+// Deployment trigger: Vercel + Atlas Migration
 import React, { useState, useEffect, useRef } from 'react';
 import { useAppContext } from '../context/AppContext';
 import { Play, Pause, RotateCcw, Plus, Loader2, CheckCircle2, Circle } from 'lucide-react';
