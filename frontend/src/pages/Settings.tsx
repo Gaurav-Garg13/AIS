@@ -1,5 +1,5 @@
 import { apiFetch } from '../utils/api';
-import { useState, type FormEvent } from 'react';
+import { useState } from 'react';
 import { motion } from 'framer-motion';
 import { useAppContext } from '../context/AppContext';
 import { useToast } from '../components/ToastProvider';
@@ -33,56 +33,54 @@ export default function Settings() {
     setAvatarPreview(url);
   };
 
-  const handleSubmit = (e: FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    try {
+      let finalAvatarUrl = profile.avatarUrl;
 
-    // Persist to backend
-    void (async () => {
-      try {
-        let finalAvatarUrl = profile.avatarUrl;
-        
-        if (avatarFile) {
-          const formData = new FormData();
-          formData.append('avatar', avatarFile);
-          const avatarRes = await apiFetch('/api/profile/avatar', {
-            method: 'POST',
-            body: formData,
-          });
-          if (avatarRes.ok) {
-            const data = await avatarRes.json();
-            finalAvatarUrl = data.avatarUrl;
-            if (user && login) {
-              login({ ...data, token: localStorage.getItem('auth_token') || '' });
-            }
+      // If user picked a new photo, upload it first
+      if (avatarFile) {
+        const formData = new FormData();
+        formData.append('avatar', avatarFile);
+        const avatarRes = await apiFetch('/api/profile/avatar', {
+          method: 'POST',
+          body: formData,
+        });
+        if (avatarRes.ok) {
+          const data = await avatarRes.json();
+          finalAvatarUrl = data.avatarUrl;
+          if (user && login) {
+            login({ ...data, token: localStorage.getItem('auth_token') || '' });
           }
         }
+      }
 
-        await apiFetch('/api/profile', {
-          method: 'PATCH',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            name: formState.name,
-            email: formState.email,
-            phone: formState.phone,
-            avatarUrl: finalAvatarUrl,
-            theme,
-            notificationPrefs,
-          }),
-        });
-        
-        setProfile((prev) => ({
-          ...prev,
+      // Save all profile info
+      await apiFetch('/api/profile', {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
           name: formState.name,
           email: formState.email,
           phone: formState.phone,
           avatarUrl: finalAvatarUrl,
-        }));
-        
-        showToast('Settings saved successfully.', { type: 'success' });
-      } catch {
-        showToast('Failed to save settings.', { type: 'error' });
-      }
-    })();
+          theme,
+          notificationPrefs,
+        }),
+      });
+
+      setProfile(prev => ({
+        ...prev,
+        name: formState.name,
+        email: formState.email,
+        phone: formState.phone,
+        avatarUrl: finalAvatarUrl,
+      }));
+
+      showToast('Settings saved successfully.', { type: 'success' });
+    } catch {
+      showToast('Failed to save settings.', { type: 'error' });
+    }
   };
 
   const inputClass = "w-full py-2 bg-transparent border-b border-slate-300 dark:border-slate-700 text-slate-800 dark:text-slate-200 placeholder-slate-400 dark:placeholder-slate-500 outline-none focus:border-slate-800 dark:focus:border-slate-400 transition-colors duration-300 font-sans";

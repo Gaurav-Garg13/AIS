@@ -1,154 +1,125 @@
 import Course from "../models/Course.js";
 
-function sanitizeCoursePayload(input, options = {}) {
-  const { partial = false } = options;
-  const output = {};
-
-  const optionalString = (key) => {
-    if (input[key] == null || (typeof input[key] === 'string' && !input[key].trim())) {
-      return;
-    }
-    output[key] = input[key].trim();
-  };
-
-  const optionalNumber = (key, { min = 0, max = Number.POSITIVE_INFINITY } = {}) => {
-    if (input[key] == null || input[key] === '') {
-      return;
-    }
-    const numericValue = Number(input[key]);
-    if (!Number.isFinite(numericValue) || numericValue < min || numericValue > max) {
-      throw new Error(`${key} must be a number between ${min} and ${max}`);
-    }
-    output[key] = numericValue;
-  };
-
-  optionalString('code');
-  optionalString('title');
-  optionalString('instructor');
-  optionalNumber('credits', { min: 0, max: 12 });
-  optionalNumber('progress', { min: 0, max: 100 });
-
-
-  if (input.syllabus != null) {
-    const syllabus = Array.isArray(input.syllabus) 
-      ? input.syllabus.map((item) => (typeof item === 'string' ? item.trim() : '')).filter(Boolean)
-      : (typeof input.syllabus === 'string' ? input.syllabus.split(',').map(s => s.trim()).filter(Boolean) : []);
-    output.syllabus = syllabus;
-  }
-
-  if (input.description != null && typeof input.description === 'string' && input.description.trim()) {
-    output.description = input.description.trim();
-  }
-
-  if (input.schedule != null && typeof input.schedule === 'string' && input.schedule.trim()) {
-    output.schedule = input.schedule.trim();
-  }
-
-  if (input.intensity != null) {
-    const allowedIntensity = ['Core', 'Lab', 'Elective'];
-    if (allowedIntensity.includes(input.intensity)) {
-      output.intensity = input.intensity;
-    }
-  }
-
-  if (input.accent != null) {
-    if (typeof input.accent !== 'string' || !/^#[\da-fA-F]{6}$/.test(input.accent.trim())) {
-      throw new Error('accent must be a hex color like #38bdf8');
-    }
-    output.accent = input.accent.trim();
-  }
-
-  return output;
-}
-
+// Get all courses for the logged-in user
 export const getCourses = async (req, res) => {
   try {
     const courses = await Course.find({ userId: req.user._id });
-    // Format them slightly to match UI expectations (like returning _id as id)
-    const formatted = courses.map(c => ({
-      ...c.toObject(),
-      id: c._id
-    }));
-    res.json(formatted);
+    // Add an 'id' field so the frontend can use it easily
+    const result = courses.map(c => ({ ...c.toObject(), id: c._id }));
+    res.json(result);
   } catch (error) {
     console.error('Error reading courses:', error);
     res.status(500).json({ error: 'Failed to load courses' });
   }
 };
 
+// Create a new course
 export const createCourse = async (req, res) => {
   try {
-    const payload = sanitizeCoursePayload(req.body ?? {});
-    
-    // Check if course code exists for THIS user (only if code is provided)
-    if (payload.code) {
-      const existing = await Course.findOne({ 
-        userId: req.user._id,
-        code: { $regex: new RegExp(`^${payload.code}$`, 'i') } 
-      });
+    const { code, title, instructor, credits, progress, description, schedule, intensity, syllabus, accent } = req.body;
 
+    // Check if this course code already exists for this user
+    if (code) {
+      const existing = await Course.findOne({
+        userId: req.user._id,
+        code: { $regex: new RegExp(`^${code}$`, 'i') }
+      });
       if (existing) {
-        return res.status(409).json({ error: `Course code "${payload.code}" already exists` });
+        return res.status(409).json({ error: `Course code "${code}" already exists` });
       }
     }
 
+    // Parse syllabus if it comes as a comma-separated string
+    let syllabusArray = [];
+    if (Array.isArray(syllabus)) {
+      syllabusArray = syllabus.filter(Boolean);
+    } else if (typeof syllabus === 'string' && syllabus.trim()) {
+      syllabusArray = syllabus.split(',').map(s => s.trim()).filter(Boolean);
+    }
+
     const newCourse = await Course.create({
-      ...payload,
-      userId: req.user._id
+      userId: req.user._id,
+      code: code?.trim(),
+      title: title?.trim(),
+      instructor: instructor?.trim(),
+      credits: Number(credits) || 0,
+      progress: Number(progress) || 0,
+      description: description?.trim(),
+      schedule: schedule?.trim(),
+      intensity: intensity || 'Core',
+      syllabus: syllabusArray,
+      accent: accent?.trim(),
     });
 
-    const formatted = { ...newCourse.toObject(), id: newCourse._id };
-    res.status(201).json(formatted);
+    res.status(201).json({ ...newCourse.toObject(), id: newCourse._id });
   } catch (error) {
-    if (error instanceof Error) {
-      return res.status(400).json({ error: error.message });
-    }
     console.error('Error creating course:', error);
     res.status(500).json({ error: 'Failed to create course' });
   }
 };
 
+// Update an existing course
 export const updateCourse = async (req, res) => {
   try {
-    const id = req.params.id;
-    const payload = sanitizeCoursePayload(req.body ?? {}, { partial: true });
-    
-    if (payload.code) {
+    const { id } = req.params;
+    const { code, title, instructor, credits, progress, description, schedule, intensity, syllabus, accent, status, difficulty, duration, prerequisites } = req.body;
+
+    // If updating code, make sure it doesn't conflict with another course
+    if (code) {
       const existing = await Course.findOne({
         userId: req.user._id,
         _id: { $ne: id },
-        code: { $regex: new RegExp(`^${payload.code}$`, 'i') }
+        code: { $regex: new RegExp(`^${code}$`, 'i') }
       });
       if (existing) {
-        return res.status(409).json({ error: `Course code "${payload.code}" already exists` });
+        return res.status(409).json({ error: `Course code "${code}" already exists` });
       }
     }
 
-    const updatedCourse = await Course.findOneAndUpdate(
+    // Build the update object with whatever was sent
+    const updates = {};
+    if (code !== undefined) updates.code = code.trim();
+    if (title !== undefined) updates.title = title.trim();
+    if (instructor !== undefined) updates.instructor = instructor.trim();
+    if (credits !== undefined) updates.credits = Number(credits);
+    if (progress !== undefined) updates.progress = Number(progress);
+    if (description !== undefined) updates.description = description.trim();
+    if (schedule !== undefined) updates.schedule = schedule.trim();
+    if (intensity !== undefined) updates.intensity = intensity;
+    if (accent !== undefined) updates.accent = accent.trim();
+    if (status !== undefined) updates.status = status;
+    if (difficulty !== undefined) updates.difficulty = difficulty;
+    if (duration !== undefined) updates.duration = duration;
+    if (prerequisites !== undefined) updates.prerequisites = prerequisites;
+    if (syllabus !== undefined) {
+      if (Array.isArray(syllabus)) {
+        updates.syllabus = syllabus.filter(Boolean);
+      } else if (typeof syllabus === 'string') {
+        updates.syllabus = syllabus.split(',').map(s => s.trim()).filter(Boolean);
+      }
+    }
+
+    const updated = await Course.findOneAndUpdate(
       { _id: id, userId: req.user._id },
-      payload,
+      updates,
       { returnDocument: 'after' }
     );
 
-    if (!updatedCourse) {
+    if (!updated) {
       return res.status(404).json({ error: 'Course not found' });
     }
 
-    const formatted = { ...updatedCourse.toObject(), id: updatedCourse._id };
-    res.json(formatted);
+    res.json({ ...updated.toObject(), id: updated._id });
   } catch (error) {
-    if (error instanceof Error) {
-      return res.status(400).json({ error: error.message });
-    }
     console.error('Error updating course:', error);
     res.status(500).json({ error: 'Failed to update course' });
   }
 };
 
+// Delete a course
 export const deleteCourse = async (req, res) => {
   try {
-    const id = req.params.id;
-    
+    const { id } = req.params;
     const deleted = await Course.findOneAndDelete({ _id: id, userId: req.user._id });
 
     if (!deleted) {

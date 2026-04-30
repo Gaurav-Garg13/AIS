@@ -84,16 +84,32 @@ export default function Dashboard({ onDeepWorkToggle }: DashboardProps) {
   const todayIndex = Math.floor(new Date().getTime() / (1000 * 60 * 60 * 24)) % quotes.length;
   const todayQuote = quotes[todayIndex];
 
-  // --- Today's Task ---
-  const [todayTask, setTodayTask] = useState(() => localStorage.getItem('dashboard_today_task') || '');
-  const [taskDone, setTaskDone] = useState(() => localStorage.getItem('dashboard_task_done') === 'true');
-  const taskInputRef = useRef<HTMLInputElement>(null);
+  // --- Today's Goals (multi-goal) ---
+  type Goal = { id: string; text: string; done: boolean };
+  const [goals, setGoals] = useState<Goal[]>(() => {
+    try { return JSON.parse(localStorage.getItem('dashboard_goals') || '[]'); } catch { return []; }
+  });
+  const [newGoalText, setNewGoalText] = useState('');
+  const goalInputRef = useRef<HTMLInputElement>(null);
   useEffect(() => {
-    localStorage.setItem('dashboard_today_task', todayTask);
-  }, [todayTask]);
-  useEffect(() => {
-    localStorage.setItem('dashboard_task_done', String(taskDone));
-  }, [taskDone]);
+    localStorage.setItem('dashboard_goals', JSON.stringify(goals));
+  }, [goals]);
+
+  const addGoal = () => {
+    const text = newGoalText.trim();
+    if (!text) return;
+    setGoals(prev => [...prev, { id: Date.now().toString(), text, done: false }]);
+    setNewGoalText('');
+    goalInputRef.current?.focus();
+  };
+
+  const toggleGoal = (id: string) => {
+    setGoals(prev => prev.map(g => g.id === id ? { ...g, done: !g.done } : g));
+  };
+
+  const removeGoal = (id: string) => {
+    setGoals(prev => prev.filter(g => g.id !== id));
+  };
 
   useEffect(() => {
     let interval: NodeJS.Timeout;
@@ -335,42 +351,67 @@ export default function Dashboard({ onDeepWorkToggle }: DashboardProps) {
                 <div className="border-b border-[#B89B72]/40 w-1/3 mt-3" />
               </div>
 
-              {/* Card 4 — Today's Focus Task */}
-              <div className="bg-white dark:bg-[#242220] border border-slate-200 dark:border-white/10 rounded-2xl p-5 flex flex-col justify-between min-h-[160px]">
-                <p className="text-xs uppercase tracking-widest font-sans text-slate-500">Today's Focus</p>
-                <div className="flex-1 flex flex-col justify-center mt-3">
-                  {taskDone !== undefined && todayTask && taskDone !== null && localStorage.getItem('dashboard_task_confirmed') === 'true' ? (
-                    <div className="flex items-start gap-2">
-                      <button onClick={() => setTaskDone(d => !d)} className="mt-0.5 flex-shrink-0 text-[#8aaca5] hover:text-[#4E7F65] transition-colors">
-                        {taskDone ? <CheckCircle2 size={18} /> : <Circle size={18} />}
-                      </button>
-                      <p
-                        onClick={() => { setTodayTask(''); setTaskDone(false); localStorage.setItem('dashboard_task_confirmed', 'false'); }}
-                        className={`font-serif text-sm leading-snug cursor-pointer transition-all ${taskDone ? 'line-through text-slate-400' : 'text-slate-800 dark:text-slate-100'}`}
-                        title="Click to clear and rewrite"
-                      >
-                        {todayTask}
-                      </p>
-                    </div>
-                  ) : (
-                    <form onSubmit={e => { e.preventDefault(); if (todayTask.trim()) localStorage.setItem('dashboard_task_confirmed', 'true'); }} className="flex flex-col gap-2">
-                      <input
-                        ref={taskInputRef}
-                        type="text"
-                        placeholder="Set your one goal for today..."
-                        value={todayTask}
-                        onChange={e => setTodayTask(e.target.value)}
-                        className="w-full bg-transparent font-serif text-sm text-slate-800 dark:text-slate-100 placeholder-slate-400 outline-none border-b border-slate-200 dark:border-white/10 pb-1 focus:border-[#8aaca5] transition-colors"
-                      />
-                      {todayTask && (
-                        <button type="submit" className="self-start text-[10px] uppercase tracking-widest font-semibold text-[#8aaca5] hover:text-[#4E7F65] transition-colors mt-1">
-                          Set goal ↵
-                        </button>
-                      )}
-                    </form>
+              {/* Card 4 — Today's Goals (multi-goal) */}
+              <div className="bg-white dark:bg-[#242220] border border-slate-200 dark:border-white/10 rounded-2xl p-5 flex flex-col min-h-[160px]">
+                <div className="flex items-center justify-between mb-3">
+                  <p className="text-xs uppercase tracking-widest font-sans text-slate-500">Today's Goals</p>
+                  {goals.length > 0 && (
+                    <span className="text-[10px] font-semibold font-sans text-[#4E7F65]">
+                      {goals.filter(g => g.done).length}/{goals.length}
+                    </span>
                   )}
                 </div>
-                <div className="border-b border-[#4E7F65]/40 w-1/3 mt-3" />
+
+                {/* Goal list */}
+                <div className="flex-1 overflow-y-auto space-y-1.5 hide-scrollbar max-h-[90px] pr-0.5">
+                  {goals.length === 0 && (
+                    <p className="text-xs italic text-slate-400 font-serif">No goals yet — add one below.</p>
+                  )}
+                  {goals.map(goal => (
+                    <div key={goal.id} className="flex items-center gap-2 group">
+                      <button
+                        onClick={() => toggleGoal(goal.id)}
+                        className="flex-shrink-0 text-[#8aaca5] hover:text-[#4E7F65] transition-colors"
+                      >
+                        {goal.done ? <CheckCircle2 size={15} /> : <Circle size={15} />}
+                      </button>
+                      <p className={`flex-1 font-serif text-xs leading-snug transition-all ${
+                        goal.done ? 'line-through text-slate-400' : 'text-slate-800 dark:text-slate-100'
+                      }`}>
+                        {goal.text}
+                      </p>
+                      <button
+                        onClick={() => removeGoal(goal.id)}
+                        className="opacity-0 group-hover:opacity-100 transition-opacity text-slate-400 hover:text-[#8C4A4A] text-xs leading-none flex-shrink-0"
+                        title="Remove goal"
+                      >
+                        ✕
+                      </button>
+                    </div>
+                  ))}
+                </div>
+
+                {/* Add goal input */}
+                <form
+                  onSubmit={e => { e.preventDefault(); addGoal(); }}
+                  className="flex items-center gap-2 mt-3 border-t border-slate-100 dark:border-white/10 pt-3"
+                >
+                  <input
+                    ref={goalInputRef}
+                    type="text"
+                    placeholder="Add a goal..."
+                    value={newGoalText}
+                    onChange={e => setNewGoalText(e.target.value)}
+                    className="flex-1 bg-transparent font-serif text-xs text-slate-800 dark:text-slate-100 placeholder-slate-400 outline-none"
+                  />
+                  <button
+                    type="submit"
+                    disabled={!newGoalText.trim()}
+                    className="flex-shrink-0 text-[#8aaca5] hover:text-[#4E7F65] transition-colors disabled:opacity-30"
+                  >
+                    <Plus size={16} />
+                  </button>
+                </form>
               </div>
 
             </div>

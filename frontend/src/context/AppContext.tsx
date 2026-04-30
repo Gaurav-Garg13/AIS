@@ -1,7 +1,8 @@
 import { apiFetch } from '../utils/api';
-import { createContext, useContext, useEffect, useMemo, useState, type ReactNode } from 'react';
+import { createContext, useContext, useEffect, useState } from 'react';
 import { useAuth } from './AuthContext';
 
+// Theme can be 'light' or 'dark'
 export type ThemeMode = 'light' | 'dark';
 
 export interface Profile {
@@ -29,10 +30,11 @@ interface AppContextValue {
 
 const AppContext = createContext<AppContextValue | undefined>(undefined);
 
-export function AppProvider({ children }: { children: ReactNode }) {
+export function AppProvider({ children }: { children: React.ReactNode }) {
+  // Load saved theme from localStorage, default to light
   const [theme, setThemeState] = useState<ThemeMode>(() => {
     const saved = localStorage.getItem('theme');
-    return (saved === 'dark' || saved === 'light') ? saved : 'light';
+    return saved === 'dark' ? 'dark' : 'light';
   });
 
   const [profile, setProfileState] = useState<Profile>({
@@ -49,70 +51,64 @@ export function AppProvider({ children }: { children: ReactNode }) {
     newsletter: false,
   });
 
+  // Save theme to localStorage whenever it changes
   const setTheme = (mode: ThemeMode) => {
     setThemeState(mode);
     localStorage.setItem('theme', mode);
   };
 
   const setProfile = (updater: (prev: Profile) => Profile) => {
-    setProfileState((prev) => updater(prev));
+    setProfileState(prev => updater(prev));
   };
 
   const setNotificationPrefs = (updater: (prev: NotificationPrefs) => NotificationPrefs) => {
-    setNotificationPrefsState((prev) => updater(prev));
+    setNotificationPrefsState(prev => updater(prev));
   };
 
   const { isAuthenticated, token } = useAuth();
 
+  // When user logs in, load their profile from the backend
   useEffect(() => {
     if (!isAuthenticated || !token) return;
-    
+
     const loadProfile = async () => {
       try {
         const res = await apiFetch('/api/profile');
         if (!res.ok) return;
-        const data = (await res.json()) as {
-          name?: string;
-          email?: string;
-          phone?: string;
-          avatarUrl?: string;
-          theme?: ThemeMode;
-          notificationPrefs?: NotificationPrefs;
-        };
+
+        const data = await res.json();
+
+        // Update theme if saved in profile
         if (data.theme === 'dark' || data.theme === 'light') {
           setThemeState(data.theme);
         }
-        setProfileState((prev) => ({
+
+        // Update profile fields if they exist
+        setProfileState(prev => ({
           ...prev,
-          ...(data.name ? { name: data.name } : {}),
-          ...(data.email ? { email: data.email } : {}),
-          ...(data.phone ? { phone: data.phone } : {}),
-          ...(data.avatarUrl !== undefined ? { avatarUrl: data.avatarUrl } : {}),
+          name: data.name || prev.name,
+          email: data.email || prev.email,
+          phone: data.phone || prev.phone,
+          avatarUrl: data.avatarUrl !== undefined ? data.avatarUrl : prev.avatarUrl,
         }));
+
+        // Update notification prefs if saved
         if (data.notificationPrefs) {
-          setNotificationPrefsState((prev) => ({ ...prev, ...data.notificationPrefs }));
+          setNotificationPrefsState(prev => ({ ...prev, ...data.notificationPrefs }));
         }
       } catch {
-        // best-effort; fall back to defaults
+        // If it fails, just use the defaults — that's fine
       }
     };
 
-    void loadProfile();
+    loadProfile();
   }, [isAuthenticated, token]);
 
-  const value = useMemo<AppContextValue>(
-    () => ({
-      theme,
-      setTheme,
-      profile,
-      setProfile,
-      notificationPrefs,
-      setNotificationPrefs,
-    }),
-    [theme, profile, notificationPrefs]
+  return (
+    <AppContext.Provider value={{ theme, setTheme, profile, setProfile, notificationPrefs, setNotificationPrefs }}>
+      {children}
+    </AppContext.Provider>
   );
-
-  return <AppContext.Provider value={value}>{children}</AppContext.Provider>;
 }
 
 export function useAppContext(): AppContextValue {
@@ -122,4 +118,3 @@ export function useAppContext(): AppContextValue {
   }
   return ctx;
 }
-

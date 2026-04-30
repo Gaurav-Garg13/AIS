@@ -1,5 +1,5 @@
 import { apiFetch } from '../utils/api';
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
   Award, Target, BarChart3, Search, Users, Plus, Edit2, Save, X, 
@@ -113,27 +113,23 @@ export default function Grades() {
     }
   };
 
-  const filteredAndSortedRows = useMemo(() => {
-    let filtered = rows.filter(row => 
-      row.course.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      row.code.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      row.grade.toLowerCase().includes(searchTerm.toLowerCase())
-    );
+  // Filter and sort rows based on search and sort state
+  let filteredAndSortedRows = rows.filter(row =>
+    row.course.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    row.code.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    row.grade.toLowerCase().includes(searchTerm.toLowerCase())
+  );
 
-    return filtered.sort((a, b) => {
-      switch (sortBy) {
-        case 'grade':
-          return a.grade.localeCompare(b.grade);
-        case 'credits':
-          return b.credits - a.credits;
-        default:
-          return a.course.localeCompare(b.course);
-      }
-    });
-  }, [rows, searchTerm, sortBy]);
+  filteredAndSortedRows = filteredAndSortedRows.sort((a, b) => {
+    switch (sortBy) {
+      case 'grade': return a.grade.localeCompare(b.grade);
+      case 'credits': return b.credits - a.credits;
+      default: return a.course.localeCompare(b.course);
+    }
+  });
 
-  const gpa = useMemo(() => computeGpa(filteredAndSortedRows), [filteredAndSortedRows]);
-  const totalCredits = useMemo(() => filteredAndSortedRows.reduce((sum, r) => sum + r.credits, 0), [filteredAndSortedRows]);
+  const gpa = computeGpa(filteredAndSortedRows);
+  const totalCredits = filteredAndSortedRows.reduce((sum, r) => sum + r.credits, 0);
 
   const gradeColors: Record<GradeRow['grade'], string> = {
     'A+': 'bg-gradient-to-r from-sage-700 to-sage-800 text-white border-sage-700',

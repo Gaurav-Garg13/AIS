@@ -1,5 +1,5 @@
 import { apiFetch } from '../utils/api';
-import { useEffect, useState, useMemo } from 'react';
+import { useEffect, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   BookOpen, Plus, Edit3, Trash2, Search, Loader2, AlertCircle,
@@ -135,47 +135,33 @@ export default function Courses() {
     loadCourses();
   }, []);
 
-  const filteredAndSortedCourses = useMemo(() => {
-    let filtered = courses.filter(course =>
-      course.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      course.code.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      course.instructor.toLowerCase().includes(searchTerm.toLowerCase())
-    );
+  // Filter and sort courses based on search/filter/sort state
+  let filteredCourses = courses.filter(course =>
+    course.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    course.code.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    course.instructor.toLowerCase().includes(searchTerm.toLowerCase())
+  );
 
-    if (filterBy !== 'all') {
-      filtered = filtered.filter(course => course.status === filterBy);
+  if (filterBy !== 'all') {
+    filteredCourses = filteredCourses.filter(course => course.status === filterBy);
+  }
+
+  filteredCourses = [...filteredCourses].sort((a, b) => {
+    switch (sortBy) {
+      case 'progress': return b.progress - a.progress;
+      case 'title': return a.title.localeCompare(b.title);
+      case 'credits': return b.credits - a.credits;
+      case 'rating': return (b.rating || 0) - (a.rating || 0);
+      default: return 0;
     }
+  });
 
-    const sorted = [...filtered].sort((a, b) => {
-      switch (sortBy) {
-        case 'progress':
-          return b.progress - a.progress;
-        case 'title':
-          return a.title.localeCompare(b.title);
-        case 'credits':
-          return b.credits - a.credits;
-        case 'rating':
-          return (b.rating || 0) - (a.rating || 0);
-        case 'recent':
-          return 0; // Would need timestamp data
-        default:
-          return 0;
-      }
-    });
-
-    return sorted;
-  }, [courses, searchTerm, filterBy, sortBy]);
-
-  const stats = useMemo(() => {
-    const total = courses.length;
-    const avgProgress = total === 0 ? 0 : courses.reduce((sum, c) => sum + c.progress, 0) / total;
-    const totalCredits = courses.reduce((sum, c) => sum + c.credits, 0);
-    const completed = courses.filter(c => c.status === 'completed' || c.progress === 100).length;
-
-    return { total, avgProgress, totalCredits, completed };
-  }, [courses]);
-
-  const filteredCourses = filteredAndSortedCourses;
+  // Simple stats from courses array
+  const total = courses.length;
+  const avgProgress = total === 0 ? 0 : courses.reduce((sum, c) => sum + c.progress, 0) / total;
+  const totalCredits = courses.reduce((sum, c) => sum + c.credits, 0);
+  const completed = courses.filter(c => c.status === 'completed' || c.progress === 100).length;
+  const stats = { total, avgProgress, totalCredits, completed };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
