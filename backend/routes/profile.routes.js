@@ -2,15 +2,20 @@ import express from "express";
 import multer from "multer";
 import path from "path";
 import fs from "fs";
+import { fileURLToPath } from "url";
 import { requireAuth } from "../middleware/auth.middleware.js";
 import User from "../models/User.js";
 import Profile from "../models/Profile.js";
+import { getFullAvatarUrl, getRelativeAvatarUrl } from "../utils/avatar.js";
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 const router = express.Router();
 
 const storage = multer.diskStorage({
   destination(req, file, cb) {
-    const dir = "public/uploads/avatars";
+    const dir = path.join(__dirname, "../public/uploads/avatars");
     if (!fs.existsSync(dir)) {
       fs.mkdirSync(dir, { recursive: true });
     }
@@ -42,16 +47,19 @@ router.post("/avatar", requireAuth, upload.single("avatar"), async (req, res) =>
       return res.status(400).json({ error: "No file uploaded" });
     }
     
-    const baseUrl = req.protocol + '://' + req.get('host');
-    const avatarUrl = `${baseUrl}/uploads/avatars/${req.file.filename}`;
+    const relativeAvatarUrl = `/uploads/avatars/${req.file.filename}`;
     
     const user = await User.findByIdAndUpdate(
       req.user._id,
-      { avatarUrl },
+      { avatarUrl: relativeAvatarUrl },
       { new: true }
     ).select("-passwordHash");
     
-    res.json({ avatarUrl, user });
+    const formattedAvatarUrl = getFullAvatarUrl(req, relativeAvatarUrl);
+    const userObj = user.toObject();
+    userObj.avatarUrl = formattedAvatarUrl;
+    
+    res.json({ avatarUrl: formattedAvatarUrl, user: userObj });
   } catch (error) {
     console.error("Avatar upload error:", error);
     res.status(500).json({ error: "Failed to upload avatar" });
@@ -64,11 +72,7 @@ router.get("/", requireAuth, async (req, res) => {
     let profile = await Profile.findOne({ userId: req.user._id });
     if (!profile) profile = {};
 
-    const baseUrl = req.protocol + '://' + req.get('host');
-    let avatarUrl = user.avatarUrl;
-    if (avatarUrl && avatarUrl.startsWith('/uploads')) {
-      avatarUrl = `${baseUrl}${avatarUrl}`;
-    }
+    const avatarUrl = getFullAvatarUrl(req, user.avatarUrl);
 
     res.json({
       name: user.name,
@@ -91,7 +95,7 @@ router.patch("/", requireAuth, async (req, res) => {
     if (name) userUpdates.name = name;
     if (email) userUpdates.email = email;
     if (phone !== undefined) userUpdates.phone = phone;
-    if (avatarUrl) userUpdates.avatarUrl = avatarUrl;
+    if (avatarUrl) userUpdates.avatarUrl = getRelativeAvatarUrl(avatarUrl);
     
     await User.findByIdAndUpdate(req.user._id, userUpdates);
     
@@ -109,3 +113,4 @@ router.patch("/", requireAuth, async (req, res) => {
 });
 
 export default router;
+

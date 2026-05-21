@@ -4,6 +4,7 @@ import Stat from "../models/Stat.js";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import { OAuth2Client } from "google-auth-library";
+import { getFullAvatarUrl } from "../utils/avatar.js";
 
 const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
 
@@ -44,7 +45,7 @@ export const signup = async (req, res) => {
       _id: user._id,
       name: user.name,
       email: user.email,
-      avatarUrl: user.avatarUrl,
+      avatarUrl: getFullAvatarUrl(req, user.avatarUrl),
       token,
     });
   } catch (error) {
@@ -73,7 +74,7 @@ export const login = async (req, res) => {
       _id: user._id,
       name: user.name,
       email: user.email,
-      avatarUrl: user.avatarUrl,
+      avatarUrl: getFullAvatarUrl(req, user.avatarUrl),
       token,
     });
   } catch (error) {
@@ -120,7 +121,7 @@ export const googleLogin = async (req, res) => {
       _id: user._id,
       name: user.name,
       email: user.email,
-      avatarUrl: user.avatarUrl,
+      avatarUrl: getFullAvatarUrl(req, user.avatarUrl),
       token: jwtToken,
     });
   } catch (error) {
@@ -132,8 +133,10 @@ export const googleLogin = async (req, res) => {
 export const getMe = async (req, res) => {
   try {
     const profile = await Profile.findOne({ userId: req.user._id });
+    const userObj = req.user.toObject();
+    userObj.avatarUrl = getFullAvatarUrl(req, userObj.avatarUrl);
     res.json({
-      user: req.user,
+      user: userObj,
       profile,
     });
   } catch (error) {
